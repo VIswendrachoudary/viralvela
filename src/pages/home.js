@@ -78,7 +78,7 @@ export async function renderHome() {
           <div class="frame fp-frame" data-reveal="up" data-delay="1">
             <span class="frame-tag">Frame 01</span>
             <span class="frame-key">Format & Aspect Ratio</span>
-            <span class="frame-value">Any Aspect Ratio <em>Preferably 16:9 (Only MP4)</em></span>
+            <span class="frame-value">Any Aspect Ratio (Only MP4) <em>Preferably 16:9</em></span>
           </div>
           <div class="frame fp-frame" data-reveal="up" data-delay="2">
             <span class="frame-tag">Frame 02</span>
