@@ -24,7 +24,7 @@ export async function renderSubmit() {
         <p class="eyebrow">Open Call</p>
         <h1 class="section-title" style="font-size:36px;margin-bottom:10px;">Submit Your Video</h1>
         <p style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--paper-dim);letter-spacing:.5px;line-height:1.7;">
-          Use separate pages for each step:
+          STEPS TO REGISTER
           <br/>1) Team Registration
           <br/>2) Verify Team ID + names and submit video
         </p>
