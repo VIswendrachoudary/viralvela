@@ -37,7 +37,7 @@ export function renderContact() {
       <div style="margin-bottom:36px; padding:24px; background:rgba(37,211,102,0.1); border:1px solid #25D366; text-align:center;">
         <p style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:1px; color:#25D366; text-transform:uppercase; margin-bottom:8px;">Official Participant Community</p>
         <h3 style="font-family:'IBM Plex Sans',sans-serif; font-size:20px; color:var(--paper); margin-bottom:16px;">Join VIRAL VELA WhatsApp Group</h3>
-        <a href="https://chat.whatsapp.com/HngH8S6svckILPF7uvLDFd?s=cl&p=i&ilr=4" target="_blank" rel="noopener noreferrer" class="btn" style="background:#25D366; color:#000000; font-weight:700; display:inline-flex; align-items:center; gap:8px;">
+        <a href="https://chat.whatsapp.com/KTwgEUumT3T4AlmxeLjQ9I?s=sh&p=a&ilr=0" target="_blank" rel="noopener noreferrer" class="btn" style="background:#25D366; color:#000000; font-weight:700; display:inline-flex; align-items:center; gap:8px;">
           <span>💬</span> Join WhatsApp Group →
         </a>
       </div>

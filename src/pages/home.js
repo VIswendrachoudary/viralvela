@@ -209,7 +209,7 @@ export async function renderHome() {
           <button class="btn fp-cta-btn" id="main-cta" data-reveal="scale" data-delay="2" style="margin-bottom:0;">
             Submit Your Video →
           </button>
-          <a href="https://chat.whatsapp.com/HngH8S6svckILPF7uvLDFd?s=cl&p=i&ilr=4" target="_blank" rel="noopener noreferrer" class="btn" data-reveal="scale" data-delay="3" style="background:#25D366; color:#000000; font-weight:700; display:inline-flex; align-items:center; gap:8px;">
+          <a href="https://chat.whatsapp.com/KTwgEUumT3T4AlmxeLjQ9I?s=sh&p=a&ilr=0" target="_blank" rel="noopener noreferrer" class="btn" data-reveal="scale" data-delay="3" style="background:#25D366; color:#000000; font-weight:700; display:inline-flex; align-items:center; gap:8px;">
             <span>💬</span> Join WhatsApp Group
           </a>
         </div>
