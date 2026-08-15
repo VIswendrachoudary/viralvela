@@ -45,13 +45,21 @@ export async function renderTeamRegistration() {
             <p class="form-error" id="err-director">Please enter team leader name.</p>
           </div>
           <div class="form-group">
+            <label class="form-label" for="director-registration-number">Team Leader Registration Number <span class="req">*</span></label>
+            <input class="form-input upper-input" type="text" id="director-registration-number" name="directorRegistrationNumber" maxlength="11" required />
+            <p class="form-hint">Format: 2 digits + 3–4 letters + 4–5 digits (example: 23BCT0233).</p>
+            <p class="form-error" id="err-director-registration">Enter a valid registration number.</p>
+          </div>
+          <div class="form-group">
             <label class="form-label" for="contact-email">Contact Email <span class="req">*</span></label>
             <input class="form-input" type="email" id="contact-email" name="contactEmail" required />
             <p class="form-error" id="err-email">Please enter a valid email address.</p>
           </div>
           <div class="form-group">
-            <label class="form-label" for="team-members">Other Team Members</label>
-            <input class="form-input" type="text" id="team-members" name="teamMembers" maxlength="200" />
+            <label class="form-label" for="team-members">Other Team Members & Registration Numbers</label>
+            <textarea class="form-textarea" id="team-members" name="teamMembers" maxlength="600" placeholder="One member per line&#10;NAME - REG NO"></textarea>
+            <p class="form-hint">Add each member’s name and registration number, separated by a dash.</p>
+            <p class="form-error" id="err-team-members">Use one member per line: Name — Registration Number.</p>
           </div>
           <div class="submit-row">
             <button type="submit" class="btn btn-submit" id="register-team-btn">
@@ -74,14 +82,21 @@ async function handleTeamRegistration(e) {
   const form = e.target
   const teamName = form.teamName.value.trim()
   const directorName = form.directorName.value.trim()
+  const directorRegistrationNumber = form.directorRegistrationNumber.value.trim().toUpperCase()
   const contactEmail = form.contactEmail.value.trim()
   const teamMembers = form.teamMembers?.value.trim() || ''
+  const registrationNumberPattern = /^\d{2}[A-Z]{3,4}\d{4,5}$/
 
   let valid = true
   showError('err-team-name', !teamName); if (!teamName) valid = false
   showError('err-director', !directorName); if (!directorName) valid = false
+  const directorRegistrationOk = registrationNumberPattern.test(directorRegistrationNumber)
+  showError('err-director-registration', !directorRegistrationOk); if (!directorRegistrationOk) valid = false
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail)
   showError('err-email', !emailOk); if (!emailOk) valid = false
+  const memberDetails = parseTeamMembers(teamMembers, registrationNumberPattern)
+  const membersOk = memberDetails !== null
+  showError('err-team-members', !membersOk); if (!membersOk) valid = false
   if (!valid) return
 
   const registerBtn = document.getElementById('register-team-btn')
@@ -96,8 +111,10 @@ async function handleTeamRegistration(e) {
       registrationId,
       teamName,
       directorName,
+      directorRegistrationNumber,
       contactEmail,
       teamMembers,
+      teamMemberDetails: memberDetails || [],
       status: 'registered',
       createdAt: serverTimestamp(),
     })
@@ -123,6 +140,22 @@ async function handleTeamRegistration(e) {
     registerBtn.disabled = false
     registerLabel.textContent = 'Register Team'
   }
+}
+
+function parseTeamMembers(value, registrationNumberPattern) {
+  if (!value) return []
+
+  const members = value.split('\n').map(line => line.trim()).filter(Boolean)
+  const parsed = members.map(line => {
+    const match = line.match(/^(.+?)\s*[-–—]\s*([A-Za-z0-9]+)$/)
+    if (!match) return null
+    const name = match[1].trim()
+    const registrationNumber = match[2].trim().toUpperCase()
+    if (!name || !registrationNumberPattern.test(registrationNumber)) return null
+    return { name, registrationNumber }
+  })
+
+  return parsed.some(member => member === null) ? null : parsed
 }
 
 async function generateUniqueRegistrationId() {

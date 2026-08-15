@@ -148,8 +148,10 @@ async function handleTeamLookup(e) {
       registrationId,
       teamName: team.teamName,
       directorName: team.directorName,
+      directorRegistrationNumber: team.directorRegistrationNumber || '',
       contactEmail: team.contactEmail,
       teamMembers: team.teamMembers || '',
+      teamMemberDetails: team.teamMemberDetails || [],
     }
 
     const info = document.getElementById('team-verified-box')
@@ -158,6 +160,7 @@ async function handleTeamLookup(e) {
       <p><strong>Team Found</strong></p>
       <p><b>Team:</b> ${escapeHtml(fetchedTeam.teamName)}</p>
       <p><b>Leader:</b> ${escapeHtml(fetchedTeam.directorName)}</p>
+      ${fetchedTeam.directorRegistrationNumber ? `<p><b>Leader Registration No.:</b> ${escapeHtml(fetchedTeam.directorRegistrationNumber)}</p>` : ''}
       <p><b>Email:</b> ${escapeHtml(fetchedTeam.contactEmail)}</p>
       ${fetchedTeam.teamMembers ? `<p><b>Members:</b> ${escapeHtml(fetchedTeam.teamMembers)}</p>` : ''}
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
@@ -185,6 +188,7 @@ function confirmFetchedTeam() {
       <p><strong>Team Verified ✓</strong></p>
       <p><b>Team:</b> ${escapeHtml(verifiedTeam.teamName)}</p>
       <p><b>Leader:</b> ${escapeHtml(verifiedTeam.directorName)}</p>
+      ${verifiedTeam.directorRegistrationNumber ? `<p><b>Leader Registration No.:</b> ${escapeHtml(verifiedTeam.directorRegistrationNumber)}</p>` : ''}
       <p><b>Email:</b> ${escapeHtml(verifiedTeam.contactEmail)}</p>
       ${verifiedTeam.teamMembers ? `<p><b>Members:</b> ${escapeHtml(verifiedTeam.teamMembers)}</p>` : ''}
       <p style="margin-top:10px;color:var(--amber);font-weight:600;">Verified — you can submit now.</p>
@@ -236,8 +240,10 @@ async function handleFinalSubmit(e) {
       teamRegistrationId: verifiedTeam.registrationId,
       teamName: verifiedTeam.teamName,
       directorName: verifiedTeam.directorName,
+      directorRegistrationNumber: verifiedTeam.directorRegistrationNumber,
       contactEmail: verifiedTeam.contactEmail,
       teamMembers: verifiedTeam.teamMembers,
+      teamMemberDetails: verifiedTeam.teamMemberDetails,
       filmTitle,
       synopsis,
       filmLink,

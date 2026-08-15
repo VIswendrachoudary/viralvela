@@ -272,7 +272,7 @@ function applyConfig(cfg) {
   if (cfg.openDate) setText('date-open', formatDate(cfg.openDate))
   if (cfg.deadlineDate) setText('date-deadline', formatDate(cfg.deadlineDate))
   if (cfg.screeningDate) setText('date-screening', formatDate(cfg.screeningDate))
-  setText('footer-main', `VIRAL VELA · Presented by Sahiti & Team`)
+  setText('footer-main', `VIRAL VELA · Presented by SAHITI TLA`)
   window._contestDeadline = cfg.deadlineDate
 }
 
