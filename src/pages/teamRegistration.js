@@ -125,6 +125,7 @@ async function handleTeamRegistration(e) {
       registrantNames,
     })
 
+    let confirmationEmailSent = false
     try {
       await sendRegistrationConfirmationEmail({
         teamName,
@@ -133,6 +134,7 @@ async function handleTeamRegistration(e) {
         contactEmail,
         registrationId,
       })
+      confirmationEmailSent = true
     } catch (emailErr) {
       console.warn('Registration confirmation email failed:', emailErr)
     }
@@ -144,6 +146,9 @@ async function handleTeamRegistration(e) {
     result.innerHTML = `
       <p><strong>Team Registered ✓</strong></p>
       <p>ID: <span class="sub-id-box">${registrationId}</span></p>
+      <p style="margin-top:8px;">${confirmationEmailSent
+        ? `A confirmation email has been sent to ${contactEmail}.`
+        : 'Your team is registered, but the confirmation email could not be sent. Please contact an organizer if needed.'}</p>
       <div style="margin-top:14px;">
         <button class="btn btn-outline" id="go-submit-entry" type="button">Continue to Verify & Submit →</button>
       </div>
@@ -240,6 +245,10 @@ async function sendRegistrationConfirmationEmail({ teamName, directorName, direc
     'template_dk3jqkk',
     {
       to_email: contactEmail,
+      email: contactEmail,
+      user_email: contactEmail,
+      recipient_email: contactEmail,
+      reply_to: contactEmail,
       contact_email: contactEmail,
       director_name: directorName,
       team_name: teamName,
