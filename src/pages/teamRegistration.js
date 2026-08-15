@@ -1,5 +1,5 @@
 import { db } from '../firebase.js'
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore'
+import { collection, doc, getDoc, getDocs, runTransaction, serverTimestamp } from 'firebase/firestore'
 import { showToast } from '../utils.js'
 import { renderNav } from '../components/nav.js'
 
@@ -99,6 +99,13 @@ async function handleTeamRegistration(e) {
   showError('err-team-members', !membersOk); if (!membersOk) valid = false
   if (!valid) return
 
+  const registrantNames = [directorName, ...memberDetails.map(member => member.name)]
+  const duplicateInTeam = findDuplicateName(registrantNames)
+  if (duplicateInTeam) {
+    showToast(`${duplicateInTeam} is listed more than once in this team.`, 'error')
+    return
+  }
+
   const registerBtn = document.getElementById('register-team-btn')
   const registerLabel = document.getElementById('register-team-label')
   registerBtn.disabled = true
@@ -106,18 +113,29 @@ async function handleTeamRegistration(e) {
 
   try {
     const registrationId = await generateUniqueRegistrationId()
-
-    await setDoc(doc(db, 'teamRegistrations', registrationId), {
+    await assertNamesAvailable(registrantNames)
+    await saveTeamRegistration({
       registrationId,
       teamName,
       directorName,
       directorRegistrationNumber,
       contactEmail,
       teamMembers,
-      teamMemberDetails: memberDetails || [],
-      status: 'registered',
-      createdAt: serverTimestamp(),
+      memberDetails,
+      registrantNames,
     })
+
+    try {
+      await sendRegistrationConfirmationEmail({
+        teamName,
+        directorName,
+        directorRegistrationNumber,
+        contactEmail,
+        registrationId,
+      })
+    } catch (emailErr) {
+      console.warn('Registration confirmation email failed:', emailErr)
+    }
 
     sessionStorage.setItem('teamRegistrationId', registrationId)
 
@@ -140,6 +158,98 @@ async function handleTeamRegistration(e) {
     registerBtn.disabled = false
     registerLabel.textContent = 'Register Team'
   }
+}
+
+async function assertNamesAvailable(registrantNames) {
+  const registeredTeams = await getDocs(collection(db, 'teamRegistrations'))
+  const existingNames = new Set()
+
+  registeredTeams.forEach((teamDoc) => {
+    const team = teamDoc.data()
+    if (team.directorName) existingNames.add(normalizeName(team.directorName))
+    getStoredMemberNames(team).forEach(name => existingNames.add(normalizeName(name)))
+  })
+
+  const duplicate = registrantNames.find(name => existingNames.has(normalizeName(name)))
+  if (duplicate) throw new Error(`${duplicate} has already been registered in another team.`)
+}
+
+async function saveTeamRegistration({ registrationId, teamName, directorName, directorRegistrationNumber, contactEmail, teamMembers, memberDetails, registrantNames }) {
+  const registrationRef = doc(db, 'teamRegistrations', registrationId)
+  const nameRefs = registrantNames.map(name => doc(db, 'registeredNames', encodeNameKey(name)))
+
+  await runTransaction(db, async (transaction) => {
+    const claimedNames = []
+    for (const nameRef of nameRefs) claimedNames.push(await transaction.get(nameRef))
+    if (claimedNames.some(claim => claim.exists())) {
+      throw new Error('One or more team member names have already been registered.')
+    }
+
+    transaction.set(registrationRef, {
+      registrationId,
+      teamName,
+      directorName,
+      directorRegistrationNumber,
+      contactEmail,
+      teamMembers,
+      teamMemberDetails: memberDetails,
+      status: 'registered',
+      createdAt: serverTimestamp(),
+    })
+    nameRefs.forEach((nameRef, index) => {
+      transaction.set(nameRef, {
+        name: registrantNames[index],
+        registrationId,
+        createdAt: serverTimestamp(),
+      })
+    })
+  })
+}
+
+function findDuplicateName(names) {
+  const seen = new Set()
+  return names.find(name => {
+    const normalized = normalizeName(name)
+    if (seen.has(normalized)) return true
+    seen.add(normalized)
+    return false
+  })
+}
+
+function getStoredMemberNames(team) {
+  if (Array.isArray(team.teamMemberDetails)) return team.teamMemberDetails.map(member => member.name).filter(Boolean)
+  return String(team.teamMembers || '')
+    .split(/\n|,/)
+    .map(entry => entry.split(/[-–—]/)[0].trim())
+    .filter(Boolean)
+}
+
+function normalizeName(name) {
+  return name.trim().replace(/\s+/g, ' ').toLowerCase()
+}
+
+function encodeNameKey(name) {
+  return encodeURIComponent(normalizeName(name))
+}
+
+async function sendRegistrationConfirmationEmail({ teamName, directorName, directorRegistrationNumber, contactEmail, registrationId }) {
+  if (!window.emailjs) return
+
+  await window.emailjs.send(
+    'service_a16f65j',
+    'template_dk3jqkk',
+    {
+      to_email: contactEmail,
+      contact_email: contactEmail,
+      director_name: directorName,
+      team_name: teamName,
+      registration_id: registrationId,
+      registration_number: directorRegistrationNumber,
+      email_subject: 'Thank you for registering — Viral Vela',
+      message: `Thank you for registering for Viral Vela. Your Team Registration ID is ${registrationId}. Please keep this ID safe; you will need it to verify your team and submit your video.`,
+    },
+    'Qun-8OVTsdAWKmQjv'
+  )
 }
 
 function parseTeamMembers(value, registrationNumberPattern) {

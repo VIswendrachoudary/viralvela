@@ -28,6 +28,9 @@ export function renderContact() {
           <a href="mailto:charandeepgarikapati@gmail.com" style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--amber); word-break:break-all;">
             charandeepgarikapati@gmail.com
           </a>
+          <a href="tel:+918074822651" style="display:block; margin-top:10px; font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--amber);">
+            +91 8074 822 651
+          </a>
         </div>
       </div>
 
