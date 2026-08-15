@@ -74,7 +74,7 @@ export async function renderHome() {
         <p class="eyebrow" data-reveal="up">Guidelines</p>
         <h2 class="fp-section-title" data-reveal="up" data-delay="1">Three Rules To Know</h2>
 
-        <div class="fp-frames-grid" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="fp-frames-grid">
           <div class="frame fp-frame" data-reveal="up" data-delay="1">
             <span class="frame-tag">Frame 01</span>
             <span class="frame-key">Format & Aspect Ratio</span>
@@ -130,7 +130,7 @@ export async function renderHome() {
         <p class="eyebrow" style="text-align:center;" data-reveal="up">Awards & Recognition</p>
         <h2 class="fp-section-title" style="text-align:center;" data-reveal="up" data-delay="1">Prizes & Certificates</h2>
 
-        <div class="fp-prize-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom:28px;">
+        <div class="fp-prize-grid" style="margin-bottom:28px;">
           <div class="fp-prize-card" data-reveal="up" data-delay="1">
             <div class="fp-prize-rank">01</div>
             <div class="fp-prize-icon">🥇</div>
@@ -151,7 +151,7 @@ export async function renderHome() {
           </div>
         </div>
         <p style="text-align:center; font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--paper-dim); letter-spacing:1px;" data-reveal="up" data-delay="4">
-          📜 <strong>All Remaining Participants:</strong> Official Participation Certificates will be awarded to all valid entries.
+          📜 <strong>All Remaining Participants:</strong> Official participation certificates will be awarded to everyone with a valid video submission.
         </p>
       </div>
     </section>
@@ -167,28 +167,28 @@ export async function renderHome() {
           <div class="fp-step" data-reveal="right" data-delay="1">
             <div class="fp-step-num">01</div>
             <div class="fp-step-body">
-              <b>SCRIPTING/Shoot/Edit</b>
+              <b>SCRIPTING / SHOOT / EDIT</b>
               <span>Create an original 1–3 minute video on any topic (short film, dance, cover song, singing, etc.).</span>
             </div>
           </div>
           <div class="fp-step" data-reveal="right" data-delay="2">
             <div class="fp-step-num">02</div>
             <div class="fp-step-body">
-              <b>Export in MP4</b>
+              <b>EXPORT IN MP4</b>
               <span>Upload your MP4 video file to Google Drive or YouTube.</span>
             </div>
           </div>
           <div class="fp-step" data-reveal="right" data-delay="3">
             <div class="fp-step-num">03</div>
             <div class="fp-step-body">
-              <b>Submit Form</b>
+              <b>SUBMIT FORM</b>
               <span>Fill in the submission form with your video link before 26 August 2026.</span>
             </div>
           </div>
           <div class="fp-step" data-reveal="right" data-delay="4">
             <div class="fp-step-num">04</div>
             <div class="fp-step-body">
-              <b>Finalist Submission Screening</b>
+              <b>FINALIST SUBMISSION SCREENING</b>
               <span>Selected finalists will be featured during the official screening session.</span>
             </div>
           </div>
