@@ -22,8 +22,8 @@ export function renderNav(currentPage) {
       <button class="nav-link ${currentPage === 'home' ? 'active' : ''}" data-page="home" id="nav-btn-home">Home</button>
       <button class="nav-link ${currentPage === 'finalists' ? 'active' : ''}" data-page="finalists" id="nav-btn-finalists">Finalists</button>
       <button class="nav-link ${currentPage === 'contact' ? 'active' : ''}" data-page="contact" id="nav-btn-contact">Contact</button>
-      <button class="nav-cta ${currentPage === 'submit' ? 'nav-cta-active' : ''}" data-page="submit" id="nav-btn-submit" aria-label="Submit your entry">
-        <span class="cta-dot"></span> Submit Film
+      <button class="nav-cta ${currentPage === 'team-registration' || currentPage === 'submit' ? 'nav-cta-active' : ''}" data-page="team-registration" id="nav-btn-register" aria-label="Register Now">
+        <span class="cta-dot"></span> REGISTER NOW
       </button>
     </nav>
   `

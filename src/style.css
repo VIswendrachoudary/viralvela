@@ -1164,3 +1164,86 @@ img { display: block; max-width: 100%; }
   .btn-sm { width: auto; padding: 7px 10px; }
   .btn-submit { width: 100%; justify-content: center; }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   HERO REGISTER NOW BUTTON & MOBILE STICKY CTA
+   ══════════════════════════════════════════════════════════════ */
+.btn-hero-register {
+  position: relative;
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(20px, 3.8vw, 30px);
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  padding: 18px 48px;
+  background: linear-gradient(135deg, #e8a33d 0%, #d64545 100%);
+  color: #0d0a07;
+  border: 2px solid #ffcc66;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 0 30px rgba(232, 163, 61, 0.45), 0 8px 25px rgba(0, 0, 0, 0.6);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-shadow: 0 1px 2px rgba(255,255,255,0.3);
+}
+
+.btn-hero-register:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 0 45px rgba(232, 163, 61, 0.85), 0 12px 30px rgba(214, 69, 69, 0.6);
+  border-color: #ffffff;
+  color: #000000;
+}
+
+.btn-hero-register:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.mobile-sticky-cta {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .btn-hero-register {
+    width: 100%;
+    max-width: 360px;
+    padding: 16px 24px;
+    font-size: 22px;
+    letter-spacing: 2px;
+  }
+
+  .mobile-sticky-cta {
+    display: flex;
+    position: fixed;
+    bottom: 16px;
+    left: 16px;
+    right: 16px;
+    z-index: 995;
+    background: rgba(13, 10, 7, 0.94);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(232, 163, 61, 0.5);
+    padding: 10px 14px;
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.85), 0 0 24px rgba(232,163,61,0.35);
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-mobile-register {
+    width: 100%;
+    font-family: 'Anton', sans-serif;
+    font-size: 19px;
+    letter-spacing: 1.8px;
+    padding: 13px 18px;
+    background: linear-gradient(135deg, #e8a33d 0%, #d64545 100%);
+    color: #0d0a07;
+    border: 1px solid #ffcc66;
+    border-radius: 8px;
+    text-transform: uppercase;
+    box-shadow: 0 0 16px rgba(232, 163, 61, 0.5);
+    cursor: pointer;
+  }
+}
+

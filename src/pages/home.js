@@ -39,6 +39,12 @@ export async function renderHome() {
           Short Video Competition for Creators & Filmmakers
         </p>
 
+        <div class="hero-register-wrap" data-reveal="scale" data-delay="2.5" style="margin:24px 0 20px;">
+          <button class="btn btn-hero-register" id="hero-register-btn">
+            ⚡ REGISTER NOW →
+          </button>
+        </div>
+
         <div class="countdown fp-countdown" aria-hidden="true" data-reveal="scale" data-delay="3">
           <div class="countdown-ring"></div>
           <div class="countdown-ticks">
@@ -207,7 +213,7 @@ export async function renderHome() {
         </p>
         <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap; margin-bottom:24px;">
           <button class="btn fp-cta-btn" id="main-cta" data-reveal="scale" data-delay="2" style="margin-bottom:0;">
-            Submit Your Video →
+            ⚡ REGISTER NOW →
           </button>
           <a href="https://chat.whatsapp.com/KTwgEUumT3T4AlmxeLjQ9I?s=sh&p=a&ilr=0" target="_blank" rel="noopener noreferrer" class="btn" data-reveal="scale" data-delay="3" style="background:#25D366; color:#000000; font-weight:700; display:inline-flex; align-items:center; gap:8px;">
             <span>💬</span> Join WhatsApp Group
@@ -218,6 +224,13 @@ export async function renderHome() {
         </p>
       </div>
     </section>
+
+    <!-- ══ MOBILE STICKY CTA ════════════════════════════════════════ -->
+    <div class="mobile-sticky-cta" id="mobile-sticky-cta">
+      <button class="btn-mobile-register" id="mobile-register-btn">
+        ⚡ REGISTER NOW →
+      </button>
+    </div>
 
     <!-- ══ FOOTER ═══════════════════════════════════════════════════ -->
     <div class="sprocket"></div>
@@ -232,8 +245,10 @@ export async function renderHome() {
   `
 
   // Wire up CTAs
-  document.getElementById('pitch-cta').addEventListener('click', () => window.navigate('submit'))
-  document.getElementById('main-cta').addEventListener('click', () => window.navigate('submit'))
+  document.getElementById('hero-register-btn')?.addEventListener('click', () => window.navigate('team-registration'))
+  document.getElementById('mobile-register-btn')?.addEventListener('click', () => window.navigate('team-registration'))
+  document.getElementById('pitch-cta')?.addEventListener('click', () => window.navigate('team-registration'))
+  document.getElementById('main-cta')?.addEventListener('click', () => window.navigate('team-registration'))
 
   // Hidden admin easter egg — 5 clicks on ◉
   let eggClicks = 0, eggTimer
@@ -346,20 +361,22 @@ function showAdminPinModal() {
 
   overlay.innerHTML = `
     <div class="admin-pin-modal" id="admin-pin-box">
-      <div style="text-align:center;margin-bottom:28px;">
+      <div style="text-align:center;margin-bottom:24px;">
         <div style="font-size:38px;margin-bottom:14px;">🎬</div>
         <p style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:3px;
            color:var(--red);text-transform:uppercase;margin-bottom:8px;">Admin Portal</p>
         <h2 style="font-family:'Anton',sans-serif;font-size:24px;text-transform:uppercase;
            color:var(--paper);margin:0;">Enter PIN</h2>
       </div>
-      <div class="pin-boxes" id="pin-boxes">
-        ${Array.from({length:8},(_,i)=>`<div class="pin-box" data-idx="${i}"></div>`).join('')}
+      <div class="pin-boxes-wrap" style="position:relative;margin-bottom:20px;">
+        <div class="pin-boxes" id="pin-boxes">
+          ${Array.from({length:8},(_,i)=>`<div class="pin-box" data-idx="${i}"></div>`).join('')}
+        </div>
+        <input id="pin-real-input" type="password" inputmode="text"
+          maxlength="8" autocomplete="off"
+          style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;z-index:5;cursor:pointer;pointer-events:auto;"
+          aria-label="PIN input" />
       </div>
-      <input id="pin-real-input" type="password" inputmode="text"
-        maxlength="8" autocomplete="off"
-        style="position:absolute;opacity:0;width:1px;height:1px;pointer-events:none;"
-        aria-label="PIN input" />
       <p class="pin-error" id="pin-error" style="display:none;">✕ &nbsp;Incorrect PIN</p>
       <button class="pin-cancel" id="pin-cancel">Cancel</button>
     </div>
@@ -373,16 +390,21 @@ function showAdminPinModal() {
 
   requestAnimationFrame(() => input.focus())
   pinBox.addEventListener('click', () => input.focus())
-  boxes[0]?.classList.add('active')
+  if (boxes[0]) boxes[0].classList.add('active')
 
   function updateBoxes(val) {
     boxes.forEach((box, i) => {
       if (i < val.length) {
-        box.textContent = '●'; box.classList.add('filled')
-        box.classList.toggle('active', i === val.length - 1)
+        box.textContent = '●'
+        box.classList.add('filled')
+        box.classList.remove('active')
+      } else if (i === val.length) {
+        box.textContent = ''
+        box.classList.remove('filled')
+        box.classList.add('active')
       } else {
-        box.textContent = ''; box.classList.remove('filled','active')
-        if (i === val.length) box.classList.add('active')
+        box.textContent = ''
+        box.classList.remove('filled', 'active')
       }
     })
   }
@@ -392,14 +414,19 @@ function showAdminPinModal() {
     updateBoxes(input.value)
     if (input.value.length >= 8) setTimeout(checkPin, 100)
   })
+
   input.addEventListener('keydown', e => {
+    if (e.key === 'Backspace') {
+      errorEl.style.display = 'none'
+      requestAnimationFrame(() => updateBoxes(input.value))
+    }
     if (e.key === 'Enter') checkPin()
     if (e.key === 'Escape') closeModal()
   })
 
   function checkPin() {
     import('/src/firebase.js').then(({ ADMIN_PIN }) => {
-      if (input.value === ADMIN_PIN) {
+      if (input.value.trim().toLowerCase() === ADMIN_PIN.toLowerCase()) {
         pinBox.style.boxShadow = '0 0 0 2px #52d68a'
         boxes.forEach(b => { b.style.borderColor='#52d68a'; b.style.color='#52d68a' })
         setTimeout(() => {

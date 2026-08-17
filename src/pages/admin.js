@@ -36,15 +36,18 @@ function renderAdminLogin(page) {
         <form id="pin-form">
           <div class="form-group" style="text-align:left;">
             <label class="form-label" for="pin-input">Admin PIN</label>
-            <input
-              class="form-input"
-              type="password"
-              id="pin-input"
-              placeholder="Enter PIN…"
-              autocomplete="current-password"
-              style="font-size:20px;letter-spacing:6px;text-align:center;"
-              autofocus
-            />
+            <div style="position:relative;">
+              <input
+                class="form-input"
+                type="password"
+                id="pin-input"
+                placeholder="Enter PIN…"
+                autocomplete="current-password"
+                style="font-size:20px;letter-spacing:4px;text-align:center;padding-right:44px;"
+                autofocus
+              />
+              <button type="button" id="toggle-admin-pin" aria-label="Toggle password visibility" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--paper-dim);cursor:pointer;font-size:18px;padding:4px;">👁️</button>
+            </div>
             <p class="form-error" id="pin-error" style="display:none;">Incorrect PIN. Try again.</p>
           </div>
           <button type="submit" class="btn" style="width:100%;margin-top:8px;" id="pin-btn">
@@ -55,19 +58,36 @@ function renderAdminLogin(page) {
     </div>
   `
 
+  const input = document.getElementById('pin-input')
+  const errEl = document.getElementById('pin-error')
+  const toggleBtn = document.getElementById('toggle-admin-pin')
+
+  toggleBtn?.addEventListener('click', () => {
+    const isPassword = input.type === 'password'
+    input.type = isPassword ? 'text' : 'password'
+    toggleBtn.textContent = isPassword ? '🙈' : '👁️'
+  })
+
+  input?.addEventListener('input', () => {
+    if (errEl) errEl.style.display = 'none'
+  })
+
+  input?.addEventListener('keydown', (e) => {
+    if (e.key === 'Backspace') {
+      if (errEl) errEl.style.display = 'none'
+    }
+  })
+
   document.getElementById('pin-form').addEventListener('submit', e => {
     e.preventDefault()
-    const entered = document.getElementById('pin-input').value.trim()
-    if (entered === ADMIN_PIN) {
+    const entered = input.value.trim()
+    if (entered.toLowerCase() === ADMIN_PIN.toLowerCase()) {
       sessionStorage.setItem(SESSION_KEY, 'true')
       renderAdminDashboard(document.getElementById('page'))
     } else {
-      const errEl = document.getElementById('pin-error')
       errEl.style.display = 'block'
-      const input = document.getElementById('pin-input')
       input.value = ''
       input.focus()
-      // Shake animation
       input.style.animation = 'none'
       requestAnimationFrame(() => {
         input.style.animation = 'shake .3s ease'
