@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="The 3-Minute Film Challenge — Your school's open call for student filmmakers. Any grade, any genre, any camera. Submit your short film today." />
+  <title>The 3-Minute Film Challenge — Student Film Contest</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script type="text/javascript">
+    (function(){
+      if (window.emailjs) {
+        emailjs.init("Qun-8OVTsdAWKmQjv");
+      }
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- ═══ CRT TV FRAME ═══════════════════════════════════════════ -->
+  <div id="crt-bezel" aria-hidden="true">
+    <!-- RGB subpixel grid overlay -->
+    <div id="crt-rgb"></div>
+    <!-- Horizontal scanlines -->
+    <div id="crt-scanlines"></div>
+    <!-- Corner/edge vignette -->
+    <div id="crt-vignette"></div>
+    <!-- Screen glare reflection -->
+    <div id="crt-glare"></div>
+    <!-- Animated grain canvas injected by JS -->
+  </div>
+
+  <!-- ═══ APP CONTENT ════════════════════════════════════════════ -->
+  <div id="app"></div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
