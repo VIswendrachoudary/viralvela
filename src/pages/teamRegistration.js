@@ -3,6 +3,8 @@ import { collection, doc, getDoc, getDocs, runTransaction, serverTimestamp } fro
 import { showToast } from '../utils.js'
 import { renderNav } from '../components/nav.js'
 
+const WHATSAPP_GROUP_URL = 'https://chat.whatsapp.com/KTwgEUumT3T4AlmxeLjQ9I?s=sh&p=a&ilr=0'
+
 export async function renderTeamRegistration() {
   renderNav('submit')
   const page = document.getElementById('page')
@@ -150,12 +152,11 @@ async function handleTeamRegistration(e) {
         ? `A confirmation email has been sent to ${contactEmail}.`
         : 'Your team is registered, but the confirmation email could not be sent. Please contact an organizer if needed.'}</p>
       <div style="margin-top:14px;">
-        <button class="btn btn-outline" id="go-submit-entry" type="button">Continue to Verify & Submit →</button>
+        <a class="btn" href="${WHATSAPP_GROUP_URL}" target="_blank" rel="noopener noreferrer" style="background:#25D366;color:#000000;">💬 Join WhatsApp Group →</a>
       </div>
     `
 
-    document.getElementById('go-submit-entry')?.addEventListener('click', () => window.navigate('submit-entry'))
-    showToast('Team registered. Continue to verification page.', 'success')
+    showToast('Team registered. Join the WhatsApp group for updates.', 'success')
   } catch (err) {
     console.error(err)
     showToast('Team registration failed — ' + err.message, 'error')

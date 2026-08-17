@@ -285,12 +285,17 @@ function startDeadlineCountdown() {
   const cdNum = document.getElementById('cd-num')
   const cdLabel = document.getElementById('cd-label')
   const cdDeadline = document.getElementById('cd-deadline')
+  const cdRing = document.querySelector('.countdown-ring')
+  const contestStart = new Date('2026-08-15T00:00:00')
+  // Exact deadline: 26TH AUG 2026 - 11:59:59 PM
+  const targetDate = new Date('2026-08-26T23:59:59')
+  const contestDuration = targetDate - contestStart
 
   function update() {
-    // Exact deadline: 26TH AUG 2026 - 11:59:59 PM
-    const targetDate = new Date('2026-08-26T23:59:59')
     const now = new Date()
     const diff = targetDate - now
+    const remainingProgress = Math.max(0, Math.min(1, diff / contestDuration))
+    if (cdRing) cdRing.style.setProperty('--countdown-progress', remainingProgress)
 
     if (diff <= 0) {
       if (cdNum) cdNum.textContent = '0'
