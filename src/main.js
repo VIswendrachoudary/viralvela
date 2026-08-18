@@ -1,4 +1,5 @@
 import './style.css'
+import { inject as injectAnalytics } from '@vercel/analytics'
 import { initCustomCursor } from './components/cursor.js'
 import { renderNav } from './components/nav.js'
 import { renderHome } from './pages/home.js'
@@ -9,7 +10,8 @@ import { renderFinalists } from './pages/finalists.js'
 import { renderAdmin } from './pages/admin.js'
 import { renderContact } from './pages/contact.js'
 
-// Initialize cute film-themed custom cursor
+// Initialize Vercel Analytics & Custom Cursor
+injectAnalytics()
 initCustomCursor()
 
 // ── App shell with glowing dynamic side film strips & ticker marquee ────
