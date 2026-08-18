@@ -58,6 +58,11 @@ export async function renderTeamRegistration() {
             <p class="form-error" id="err-email">Please enter a valid email address.</p>
           </div>
           <div class="form-group">
+            <label class="form-label" for="whatsapp-number">WhatsApp Number <span class="req">*</span></label>
+            <input class="form-input" type="tel" id="whatsapp-number" name="whatsappNumber" placeholder="e.g. +91 9876543210" required />
+            <p class="form-error" id="err-whatsapp">Please enter a valid WhatsApp phone number (min 10 digits).</p>
+          </div>
+          <div class="form-group">
             <label class="form-label" for="team-members">Other Team Members & Registration Numbers</label>
             <textarea class="form-textarea" id="team-members" name="teamMembers" maxlength="600" placeholder="One member per line&#10;NAME - REG NO"></textarea>
             <p class="form-hint">Add each member’s name and registration number, separated by a dash.</p>
@@ -86,6 +91,7 @@ async function handleTeamRegistration(e) {
   const directorName = form.directorName.value.trim()
   const directorRegistrationNumber = form.directorRegistrationNumber.value.trim().toUpperCase()
   const contactEmail = form.contactEmail.value.trim()
+  const whatsappNumber = form.whatsappNumber.value.trim()
   const teamMembers = form.teamMembers?.value.trim() || ''
   const registrationNumberPattern = /^\d{2}[A-Z]{3,4}\d{4,5}$/
 
@@ -96,6 +102,9 @@ async function handleTeamRegistration(e) {
   showError('err-director-registration', !directorRegistrationOk); if (!directorRegistrationOk) valid = false
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail)
   showError('err-email', !emailOk); if (!emailOk) valid = false
+  const digitsOnly = whatsappNumber.replace(/\D/g, '')
+  const whatsappOk = digitsOnly.length >= 10 && digitsOnly.length <= 15
+  showError('err-whatsapp', !whatsappOk); if (!whatsappOk) valid = false
   const memberDetails = parseTeamMembers(teamMembers, registrationNumberPattern)
   const membersOk = memberDetails !== null
   showError('err-team-members', !membersOk); if (!membersOk) valid = false
@@ -122,6 +131,7 @@ async function handleTeamRegistration(e) {
       directorName,
       directorRegistrationNumber,
       contactEmail,
+      whatsappNumber,
       teamMembers,
       memberDetails,
       registrantNames,
@@ -156,10 +166,10 @@ async function handleTeamRegistration(e) {
       </div>
     `
 
-    showToast('Team registered. Join the WhatsApp group for updates.', 'success')
+    showToast('Team registered. Join the WhatsApp group for updates.', 'success', 2000)
   } catch (err) {
     console.error(err)
-    showToast('Team registration failed — ' + err.message, 'error')
+    showToast('Team registration failed — ' + err.message, 'error', 2000)
   } finally {
     registerBtn.disabled = false
     registerLabel.textContent = 'Register Team'
@@ -180,7 +190,7 @@ async function assertNamesAvailable(registrantNames) {
   if (duplicate) throw new Error(`${duplicate} has already been registered in another team.`)
 }
 
-async function saveTeamRegistration({ registrationId, teamName, directorName, directorRegistrationNumber, contactEmail, teamMembers, memberDetails, registrantNames }) {
+async function saveTeamRegistration({ registrationId, teamName, directorName, directorRegistrationNumber, contactEmail, whatsappNumber, teamMembers, memberDetails, registrantNames }) {
   const registrationRef = doc(db, 'teamRegistrations', registrationId)
   const nameRefs = registrantNames.map(name => doc(db, 'registeredNames', encodeNameKey(name)))
 
@@ -197,6 +207,7 @@ async function saveTeamRegistration({ registrationId, teamName, directorName, di
       directorName,
       directorRegistrationNumber,
       contactEmail,
+      whatsappNumber,
       teamMembers,
       teamMemberDetails: memberDetails,
       status: 'registered',

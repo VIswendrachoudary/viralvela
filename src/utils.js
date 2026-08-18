@@ -1,14 +1,24 @@
 // Toast notification component
-export function showToast(message, type = 'default', duration = 3500) {
+export function showToast(message, type = 'default', duration = 2000) {
   const container = document.getElementById('toast-container')
+  if (!container) return
   const toast = document.createElement('div')
   toast.className = `toast ${type}`
+  toast.style.cursor = 'pointer'
+  toast.title = 'Click to dismiss'
   toast.textContent = message
-  container.appendChild(toast)
-  setTimeout(() => {
+  
+  let timer
+  const removeToast = () => {
+    if (timer) clearTimeout(timer)
     toast.style.animation = 'slide-in .25s ease-out reverse'
-    toast.addEventListener('animationend', () => toast.remove())
-  }, duration)
+    toast.addEventListener('animationend', () => toast.remove(), { once: true })
+    setTimeout(() => toast.remove(), 300)
+  }
+
+  toast.addEventListener('click', removeToast)
+  container.appendChild(toast)
+  timer = setTimeout(removeToast, duration)
 }
 
 // Format a Firestore Timestamp or ISO string as a readable date
@@ -19,6 +29,18 @@ export function formatDate(val) {
   else d = new Date(val)
   if (isNaN(d)) return val
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
+// Format a Firestore Timestamp or ISO string as readable date and time
+export function formatDateTime(val) {
+  if (!val) return '—'
+  let d
+  if (val && typeof val.toDate === 'function') d = val.toDate()
+  else d = new Date(val)
+  if (isNaN(d)) return val
+  const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  const timeStr = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
+  return `${dateStr}, ${timeStr}`
 }
 
 // Debounce

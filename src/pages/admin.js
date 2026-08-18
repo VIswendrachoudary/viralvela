@@ -3,12 +3,13 @@ import {
   collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc,
   query, orderBy, onSnapshot, addDoc, serverTimestamp, getCountFromServer
 } from 'firebase/firestore'
-import { showToast, formatDate, skeletonRows, debounce } from '../utils.js'
+import { showToast, formatDate, formatDateTime, skeletonRows, debounce } from '../utils.js'
 import { renderNav } from '../components/nav.js'
 
 const SESSION_KEY = '3mfc_admin_ok'
 let currentAdminTab = 'config'
 let unsubscribeSubmissions = null
+let unsubscribeRegistrations = null
 
 export function renderAdmin() {
   renderNav('admin')
@@ -105,6 +106,10 @@ function renderAdminDashboard(page) {
         <button class="admin-nav-item ${currentAdminTab==='config'?'active':''}" data-tab="config">
           <span class="nav-icon">⚙️</span> Contest Settings
         </button>
+        <button class="admin-nav-item ${currentAdminTab==='registrations'?'active':''}" data-tab="registrations">
+          <span class="nav-icon">📋</span> Team Registrations
+          <span id="reg-badge" style="margin-left:auto;font-size:10px;background:var(--amber-glow);color:var(--amber);padding:2px 7px;border-radius:20px;"></span>
+        </button>
         <button class="admin-nav-item ${currentAdminTab==='submissions'?'active':''}" data-tab="submissions">
           <span class="nav-icon">📥</span> Submissions
           <span id="sub-badge" style="margin-left:auto;font-size:10px;background:var(--amber-glow);color:var(--amber);padding:2px 7px;border-radius:20px;"></span>
@@ -134,11 +139,13 @@ function renderAdminDashboard(page) {
 
   document.getElementById('lock-btn').addEventListener('click', () => {
     if (unsubscribeSubmissions) { unsubscribeSubmissions(); unsubscribeSubmissions = null }
+    if (unsubscribeRegistrations) { unsubscribeRegistrations(); unsubscribeRegistrations = null }
     sessionStorage.removeItem(SESSION_KEY)
     renderAdminLogin(document.getElementById('page'))
   })
 
   loadSubmissionCount()
+  loadRegistrationCount()
   switchTab(currentAdminTab)
 }
 
@@ -149,7 +156,8 @@ function switchTab(tab) {
   })
   const main = document.getElementById('admin-main')
   if (!main) return
-  if (tab === 'config')      renderConfigTab(main)
+  if (tab === 'config')           renderConfigTab(main)
+  else if (tab === 'registrations') renderRegistrationsTab(main)
   else if (tab === 'submissions') renderSubmissionsTab(main)
   else if (tab === 'finalists')   renderFinalistsTab(main)
   else if (tab === 'votes')       renderVotesTab(main)
@@ -159,6 +167,14 @@ async function loadSubmissionCount() {
   try {
     const snap = await getCountFromServer(collection(db, 'submissions'))
     const badge = document.getElementById('sub-badge')
+    if (badge) badge.textContent = snap.data().count
+  } catch (_) {}
+}
+
+async function loadRegistrationCount() {
+  try {
+    const snap = await getCountFromServer(collection(db, 'teamRegistrations'))
+    const badge = document.getElementById('reg-badge')
     if (badge) badge.textContent = snap.data().count
   } catch (_) {}
 }
@@ -301,6 +317,131 @@ async function renderConfigTab(main) {
 }
 
 /* ================================================================
+   TEAM REGISTRATIONS TAB (NEW)
+================================================================ */
+function renderRegistrationsTab(main) {
+  if (unsubscribeRegistrations) { unsubscribeRegistrations(); unsubscribeRegistrations = null }
+
+  main.innerHTML = `
+    <div class="admin-header">
+      <h2>Team Registrations</h2>
+      <p>View registered teams, leaders, registration numbers, WhatsApp contact, and registration timestamps.</p>
+    </div>
+    <div class="stats-bar">
+      <div class="stat-box"><div class="stat-label">Total Teams</div><div class="stat-value" id="st-reg-total">—</div></div>
+    </div>
+    <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center;">
+      <input class="form-input" id="search-reg" placeholder="Search team, leader, reg no, phone..."
+        style="max-width:300px;padding:9px 14px;font-size:13px;" />
+      <button class="btn btn-outline btn-sm" id="download-registrations-csv" type="button">
+        Download CSV
+      </button>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Team ID / Name</th>
+            <th>Leader &amp; Reg No</th>
+            <th>Contact / WhatsApp</th>
+            <th>Registered Timestamp</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="reg-tbody">${skeletonRows(6)}</tbody>
+      </table>
+    </div>
+  `
+
+  let allRegistrations = []
+
+  const q = query(collection(db, 'teamRegistrations'), orderBy('createdAt', 'desc'))
+  unsubscribeRegistrations = onSnapshot(q, snapshot => {
+    allRegistrations = snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
+    setText('st-reg-total', allRegistrations.length)
+    const badge = document.getElementById('reg-badge')
+    if (badge) badge.textContent = allRegistrations.length
+    renderRegistrationRows(filterRegs(allRegistrations))
+  }, err => showToast('Could not load registrations: ' + err.message, 'error'))
+
+  const doFilter = debounce(() => renderRegistrationRows(filterRegs(allRegistrations)), 300)
+  document.getElementById('search-reg')?.addEventListener('input', doFilter)
+  document.getElementById('download-registrations-csv')?.addEventListener('click', () => {
+    downloadRegistrationsCsv(filterRegs(allRegistrations))
+  })
+}
+
+function filterRegs(all) {
+  const search = document.getElementById('search-reg')?.value.toLowerCase() || ''
+  if (!search) return all
+  return all.filter(r =>
+    r.registrationId?.toLowerCase().includes(search) ||
+    r.teamName?.toLowerCase().includes(search) ||
+    r.directorName?.toLowerCase().includes(search) ||
+    r.directorRegistrationNumber?.toLowerCase().includes(search) ||
+    r.contactEmail?.toLowerCase().includes(search) ||
+    r.whatsappNumber?.toLowerCase().includes(search)
+  )
+}
+
+function renderRegistrationRows(registrations) {
+  const tbody = document.getElementById('reg-tbody')
+  if (!tbody) return
+  if (registrations.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--grey);font-family:'IBM Plex Mono',monospace;font-size:12px;">No team registrations found.</td></tr>`
+    return
+  }
+  tbody.innerHTML = registrations.map(r => `
+    <tr>
+      <td>
+        <span class="sub-id-box">${esc(r.registrationId || r.id)}</span><br/>
+        <strong>${esc(r.teamName)}</strong>
+      </td>
+      <td>
+        <strong>${esc(r.directorName)}</strong><br/>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--amber);">${esc(r.directorRegistrationNumber || '—')}</span>
+      </td>
+      <td>
+        <span style="font-size:12px;">✉️ ${esc(r.contactEmail)}</span><br/>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--paper-dim);">💬 ${esc(r.whatsappNumber || '—')}</span>
+      </td>
+      <td style="white-space:nowrap;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--paper-dim);">
+        📅 ${formatDateTime(r.createdAt)}
+      </td>
+      <td>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-sm" data-action="view-reg" data-id="${r.id}">👁️ View Details</button>
+          <button class="btn btn-sm btn-danger" data-action="delete-reg" data-id="${r.id}" data-title="${esc(r.teamName)}">🗑</button>
+        </div>
+      </td>
+    </tr>
+  `).join('')
+
+  tbody.querySelectorAll('[data-action]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const action = btn.dataset.action
+      const id = btn.dataset.id
+      const reg = registrations.find(item => item.id === id)
+      if (action === 'view-reg' && reg) {
+        showDetailsModal('Team Registration Details', reg, 'registration')
+      } else if (action === 'delete-reg') {
+        handleDeleteRegistration(id, btn.dataset.title)
+      }
+    })
+  })
+}
+
+async function handleDeleteRegistration(id, teamName) {
+  if (!confirm(`Permanently delete team registration for "${teamName}"?`)) return
+  try {
+    await deleteDoc(doc(db, 'teamRegistrations', id))
+    showToast('Team registration deleted.', 'success')
+  } catch (err) {
+    showToast('Delete failed: ' + err.message, 'error')
+  }
+}
+
+/* ================================================================
    SUBMISSIONS TAB
 ================================================================ */
 function renderSubmissionsTab(main) {
@@ -309,7 +450,7 @@ function renderSubmissionsTab(main) {
   main.innerHTML = `
     <div class="admin-header">
       <h2>Submissions</h2>
-      <p>Review all submitted films. Promote entries to Finalists.</p>
+      <p>Review all submitted films, timestamps, contacts, and WhatsApp info. Promote entries to Finalists.</p>
     </div>
     <div class="stats-bar">
       <div class="stat-box"><div class="stat-label">Total</div><div class="stat-value" id="st-total">—</div></div>
@@ -318,7 +459,7 @@ function renderSubmissionsTab(main) {
       <div class="stat-box"><div class="stat-label">Rejected</div><div class="stat-value" id="st-rejected">—</div></div>
     </div>
     <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center;">
-      <input class="form-input" id="search-sub" placeholder="Search title or director…"
+      <input class="form-input" id="search-sub" placeholder="Search title, director, reg ID..."
         style="max-width:260px;padding:9px 14px;font-size:13px;" />
       <select class="form-select" id="filter-status" style="max-width:160px;padding:9px 14px;font-size:13px;">
         <option value="">All Status</option>
@@ -334,8 +475,8 @@ function renderSubmissionsTab(main) {
       <table class="data-table">
         <thead>
           <tr>
-            <th>Film Title</th><th>Director</th><th>Synopsis</th>
-            <th>Submitted</th><th>Status</th><th>Actions</th>
+            <th>Film Title</th><th>Director &amp; Contacts</th><th>Synopsis</th>
+            <th>Submitted Timestamp</th><th>Status</th><th>Actions</th>
           </tr>
         </thead>
         <tbody id="sub-tbody">${skeletonRows(6)}</tbody>
@@ -365,7 +506,7 @@ function filterSubs(all) {
   const search = document.getElementById('search-sub')?.value.toLowerCase() || ''
   const status = document.getElementById('filter-status')?.value || ''
   return all.filter(s =>
-    (!search || s.filmTitle?.toLowerCase().includes(search) || s.directorName?.toLowerCase().includes(search)) &&
+    (!search || s.filmTitle?.toLowerCase().includes(search) || s.directorName?.toLowerCase().includes(search) || s.teamRegistrationId?.toLowerCase().includes(search)) &&
     (!status || s.status === status)
   )
 }
@@ -393,20 +534,27 @@ function renderSubmissionRows(submissions) {
       <td>
         <strong>${esc(s.filmTitle)}</strong><br/>
         <a href="${esc(s.filmLink)}" target="_blank" rel="noopener"
-          style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--grey);letter-spacing:.5px;">
+          style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--amber);letter-spacing:.5px;">
           View Film ↗
         </a>
       </td>
-      <td>${esc(s.directorName)}<br/><span style="font-size:11px;color:var(--grey);">${esc(s.contactEmail)}</span></td>
+      <td>
+        <strong>${esc(s.directorName)}</strong><br/>
+        <span style="font-size:11px;color:var(--paper-dim);">✉️ ${esc(s.contactEmail)}</span><br/>
+        ${s.whatsappNumber ? `<span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--amber);">💬 ${esc(s.whatsappNumber)}</span>` : ''}
+      </td>
       <td style="max-width:200px;">
         <span style="font-size:12px;color:var(--paper-dim);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">
           ${esc(s.synopsis || s.logline || '—')}
         </span>
       </td>
-      <td style="white-space:nowrap;">${formatDate(s.createdAt)}</td>
+      <td style="white-space:nowrap;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--paper-dim);">
+        📅 ${formatDateTime(s.createdAt)}
+      </td>
       <td><span class="status-badge status-${s.status||'pending'}">${s.status||'pending'}</span></td>
       <td>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-sm" data-action="view-sub" data-id="${s.id}">👁️ View Details</button>
           ${s.status !== 'finalist' ? `<button class="btn btn-sm" data-action="promote" data-id="${s.id}" data-title="${esc(s.filmTitle)}">★ Finalist</button>` : ''}
           ${s.status !== 'rejected' ? `<button class="btn btn-sm btn-danger" data-action="reject" data-id="${s.id}">✕ Reject</button>`
             : `<button class="btn btn-sm btn-outline" data-action="restore" data-id="${s.id}">↩ Restore</button>`}
@@ -417,7 +565,16 @@ function renderSubmissionRows(submissions) {
   `).join('')
 
   tbody.querySelectorAll('[data-action]').forEach(btn => {
-    btn.addEventListener('click', () => handleSubAction(btn.dataset.action, btn.dataset.id, btn.dataset.title))
+    btn.addEventListener('click', () => {
+      const action = btn.dataset.action
+      const id = btn.dataset.id
+      const sub = submissions.find(item => item.id === id)
+      if (action === 'view-sub' && sub) {
+        showDetailsModal('Video Submission Details', sub, 'submission')
+      } else {
+        handleSubAction(action, id, btn.dataset.title)
+      }
+    })
   })
 }
 
@@ -455,6 +612,83 @@ async function handleSubAction(action, id, filmTitle) {
     try { await deleteDoc(subRef); showToast('Deleted.') }
     catch (err) { showToast('Error: ' + err.message, 'error') }
   }
+}
+
+/* ================================================================
+   VIEW DETAILS MODAL ("VIEW BIN / VIEW DETAIL PAGE")
+================================================================ */
+function showDetailsModal(title, item, type = 'submission') {
+  document.getElementById('details-modal-overlay')?.remove()
+
+  const overlay = document.createElement('div')
+  overlay.id = 'details-modal-overlay'
+  overlay.className = 'modal-overlay'
+  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;'
+
+  overlay.innerHTML = `
+    <div style="background:var(--bg-deep);border:1px solid var(--line);max-width:620px;width:100%;max-height:90vh;overflow-y:auto;padding:32px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,0.6);">
+      <button id="close-modal-btn" style="position:absolute;top:16px;right:20px;background:none;border:none;color:var(--paper-dim);font-size:24px;cursor:pointer;">✕</button>
+
+      <div style="margin-bottom:20px;border-bottom:1px solid var(--line);padding-bottom:14px;">
+        <p style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--amber);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">${esc(title)}</p>
+        <h2 style="font-size:24px;color:var(--paper);margin:0;">${esc(item.teamName || item.filmTitle || 'Details')}</h2>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:14px;font-family:'IBM Plex Mono',monospace;font-size:13px;line-height:1.6;">
+        ${item.registrationId || item.teamRegistrationId ? `
+          <div><strong style="color:var(--paper-dim);">Team Registration ID:</strong> <span class="sub-id-box">${esc(item.registrationId || item.teamRegistrationId)}</span></div>
+        ` : ''}
+
+        ${item.id ? `
+          <div><strong style="color:var(--paper-dim);">Record ID:</strong> <span style="color:var(--paper);">${esc(item.id)}</span></div>
+        ` : ''}
+
+        <div><strong style="color:var(--paper-dim);">Team Name:</strong> <span style="color:var(--paper);font-weight:600;">${esc(item.teamName || '—')}</span></div>
+        <div><strong style="color:var(--paper-dim);">Director / Team Leader:</strong> <span style="color:var(--paper);">${esc(item.directorName || '—')}</span></div>
+
+        ${item.directorRegistrationNumber ? `
+          <div><strong style="color:var(--paper-dim);">Leader Registration No.:</strong> <span style="color:var(--amber);">${esc(item.directorRegistrationNumber)}</span></div>
+        ` : ''}
+
+        <div><strong style="color:var(--paper-dim);">Contact Email:</strong> <a href="mailto:${esc(item.contactEmail)}" style="color:var(--amber);">${esc(item.contactEmail || '—')}</a></div>
+
+        <div><strong style="color:var(--paper-dim);">WhatsApp Number:</strong> ${item.whatsappNumber ? `<a href="https://wa.me/${esc(item.whatsappNumber.replace(/\D/g, ''))}" target="_blank" rel="noopener" style="color:#25D366;">💬 ${esc(item.whatsappNumber)} ↗</a>` : '—'}</div>
+
+        ${item.teamMembers ? `
+          <div style="background:var(--bg-alt);padding:14px;border:1px solid var(--line);margin-top:6px;">
+            <strong style="color:var(--paper-dim);display:block;margin-bottom:6px;">Team Members:</strong>
+            <pre style="margin:0;font-family:inherit;white-space:pre-wrap;color:var(--paper);font-size:12px;">${esc(item.teamMembers)}</pre>
+          </div>
+        ` : ''}
+
+        ${type === 'submission' ? `
+          <div style="border-top:1px solid var(--line);padding-top:14px;margin-top:8px;">
+            <strong style="color:var(--amber);display:block;margin-bottom:6px;">Film Details:</strong>
+            <div style="margin-bottom:6px;"><strong style="color:var(--paper-dim);">Film Title:</strong> <span style="color:var(--paper);font-size:15px;font-weight:700;">"${esc(item.filmTitle)}"</span></div>
+            <div style="margin-bottom:6px;"><strong style="color:var(--paper-dim);">Film Link:</strong> <a href="${esc(item.filmLink)}" target="_blank" rel="noopener" style="color:var(--amber);">View Film Link ↗</a></div>
+            <div><strong style="color:var(--paper-dim);">Synopsis:</strong></div>
+            <p style="background:var(--bg-alt);padding:12px;border:1px solid var(--line);color:var(--paper);font-size:12px;margin-top:4px;line-height:1.5;">${esc(item.synopsis || item.logline || '—')}</p>
+          </div>
+        ` : ''}
+
+        <div style="border-top:1px solid var(--line);padding-top:14px;margin-top:8px;display:flex;justify-content:space-between;align-items:center;">
+          <div><strong style="color:var(--paper-dim);">Status:</strong> <span class="status-badge status-${item.status||'registered'}">${item.status||'registered'}</span></div>
+          <div><strong style="color:var(--paper-dim);">Timestamp:</strong> <span style="color:var(--amber);">${formatDateTime(item.createdAt)}</span></div>
+        </div>
+      </div>
+
+      <div style="margin-top:24px;text-align:right;">
+        <button class="btn" id="modal-close-bottom-btn">Close</button>
+      </div>
+    </div>
+  `
+
+  document.body.appendChild(overlay)
+
+  const closeFn = () => overlay.remove()
+  document.getElementById('close-modal-btn')?.addEventListener('click', closeFn)
+  document.getElementById('modal-close-bottom-btn')?.addEventListener('click', closeFn)
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeFn() })
 }
 
 /* ================================================================
@@ -606,7 +840,9 @@ function downloadSubmissionsCsv(submissions) {
     'teamName',
     'filmTitle',
     'directorName',
+    'directorRegistrationNumber',
     'contactEmail',
+    'whatsappNumber',
     'teamMembers',
     'synopsis',
     'filmLink',
@@ -623,7 +859,9 @@ function downloadSubmissionsCsv(submissions) {
       s.teamName || '',
       s.filmTitle || '',
       s.directorName || '',
+      s.directorRegistrationNumber || '',
       s.contactEmail || '',
+      s.whatsappNumber || '',
       s.teamMembers || '',
       s.synopsis || s.logline || '',
       s.filmLink || '',
@@ -646,4 +884,47 @@ function downloadSubmissionsCsv(submissions) {
   link.remove()
   URL.revokeObjectURL(url)
   showToast(`Downloaded ${submissions.length} submissions as CSV.`, 'success')
+}
+
+function downloadRegistrationsCsv(registrations) {
+  const headers = [
+    'registrationId',
+    'teamName',
+    'directorName',
+    'directorRegistrationNumber',
+    'contactEmail',
+    'whatsappNumber',
+    'teamMembers',
+    'status',
+    'createdAt',
+  ]
+
+  const lines = [headers.map(csvCell).join(',')]
+  registrations.forEach((r) => {
+    const row = [
+      r.registrationId || r.id,
+      r.teamName || '',
+      r.directorName || '',
+      r.directorRegistrationNumber || '',
+      r.contactEmail || '',
+      r.whatsappNumber || '',
+      r.teamMembers || '',
+      r.status || 'registered',
+      toIsoDateTime(r.createdAt),
+    ]
+    lines.push(row.map(csvCell).join(','))
+  })
+
+  const csv = lines.join('\n')
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')
+  link.href = url
+  link.download = `team-registrations-${stamp}.csv`
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  URL.revokeObjectURL(url)
+  showToast(`Downloaded ${registrations.length} team registrations as CSV.`, 'success')
 }

@@ -219,9 +219,45 @@ export async function renderHome() {
             <span>💬</span> Join WhatsApp Group
           </a>
         </div>
-        <p class="contact" data-reveal="up" data-delay="4">
-          Questions or Queries? <a href="#contact" onclick="window.navigate('contact')">Contact Event Organizers →</a>
+    <!-- ══ CONTACT DETAILS SECTION ═══════════════════════════════ -->
+    <div class="sprocket"></div>
+    <section class="fp-section fp-contact-section" id="home-contact">
+      <div class="fp-section-inner" style="max-width:800px; text-align:center;">
+        <div style="font-size:42px; margin-bottom:12px;" data-reveal="up">📞</div>
+        <p class="eyebrow" data-reveal="up" data-delay="1">Get In Touch</p>
+        <h2 class="fp-section-title" data-reveal="up" data-delay="2" style="margin-bottom:12px;">Contact Event Organizers</h2>
+        <p style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--paper-dim); line-height:1.7; margin-bottom:32px;" data-reveal="up" data-delay="3">
+          Have questions about VIRAL VELA or submission details? Reach out to our event organizers below.
         </p>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:20px; text-align:left; margin-bottom:32px;" data-reveal="up" data-delay="4">
+          <div style="background:var(--bg-alt); border:1px solid var(--line); padding:24px 20px;">
+            <p style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--amber); text-transform:uppercase; margin-bottom:8px;">General Enquiries</p>
+            <h3 style="font-family:'IBM Plex Sans',sans-serif; font-size:18px; color:var(--paper); margin-bottom:8px;">Sahiti</h3>
+            <a href="mailto:sahititla.vit@gmail.com" style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--amber); word-break:break-all;">
+              sahititla.vit@gmail.com
+            </a>
+          </div>
+
+          <div style="background:var(--bg-alt); border:1px solid var(--line); padding:24px 20px;">
+            <p style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--red); text-transform:uppercase; margin-bottom:8px;">Submission Queries</p>
+            <h3 style="font-family:'IBM Plex Sans',sans-serif; font-size:18px; color:var(--paper); margin-bottom:8px;">Charandeep</h3>
+            <a href="mailto:charandeepgarikapati@gmail.com" style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--amber); word-break:break-all;">
+              charandeepgarikapati@gmail.com
+            </a>
+            <a href="tel:+918074822651" style="display:block; margin-top:10px; font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--amber);">
+              +91 8074 822 651
+            </a>
+          </div>
+        </div>
+
+        <div style="padding:24px; background:rgba(37,211,102,0.1); border:1px solid #25D366; text-align:center;" data-reveal="up" data-delay="5">
+          <p style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:1px; color:#25D366; text-transform:uppercase; margin-bottom:8px;">Official Participant Community</p>
+          <h3 style="font-family:'IBM Plex Sans',sans-serif; font-size:20px; color:var(--paper); margin-bottom:16px;">Join VIRAL VELA WhatsApp Group</h3>
+          <a href="https://chat.whatsapp.com/KTwgEUumT3T4AlmxeLjQ9I?s=sh&p=a&ilr=0" target="_blank" rel="noopener noreferrer" class="btn" style="background:#25D366; color:#000000; font-weight:700; display:inline-flex; align-items:center; gap:8px;">
+            <span>💬</span> Join WhatsApp Group →
+          </a>
+        </div>
       </div>
     </section>
 

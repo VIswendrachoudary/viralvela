@@ -139,7 +139,7 @@ async function handleTeamLookup(e) {
     const snap = await getDoc(doc(db, 'teamRegistrations', registrationId))
     if (!snap.exists()) {
       showError('err-verify', true)
-      showToast('Team ID not found.', 'error')
+      showToast('Team ID not found.', 'error', 2000)
       return
     }
 
@@ -150,6 +150,7 @@ async function handleTeamLookup(e) {
       directorName: team.directorName,
       directorRegistrationNumber: team.directorRegistrationNumber || '',
       contactEmail: team.contactEmail,
+      whatsappNumber: team.whatsappNumber || '',
       teamMembers: team.teamMembers || '',
       teamMemberDetails: team.teamMemberDetails || [],
     }
@@ -162,6 +163,7 @@ async function handleTeamLookup(e) {
       <p><b>Leader:</b> ${escapeHtml(fetchedTeam.directorName)}</p>
       ${fetchedTeam.directorRegistrationNumber ? `<p><b>Leader Registration No.:</b> ${escapeHtml(fetchedTeam.directorRegistrationNumber)}</p>` : ''}
       <p><b>Email:</b> ${escapeHtml(fetchedTeam.contactEmail)}</p>
+      ${fetchedTeam.whatsappNumber ? `<p><b>WhatsApp:</b> ${escapeHtml(fetchedTeam.whatsappNumber)}</p>` : ''}
       ${fetchedTeam.teamMembers ? `<p><b>Members:</b> ${escapeHtml(fetchedTeam.teamMembers)}</p>` : ''}
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
         <button type="button" class="btn btn-sm" id="confirm-team-btn">Yes, this is my team</button>
@@ -171,10 +173,10 @@ async function handleTeamLookup(e) {
 
     document.getElementById('confirm-team-btn')?.addEventListener('click', confirmFetchedTeam)
     document.getElementById('reject-team-btn')?.addEventListener('click', rejectFetchedTeam)
-    showToast('Team details loaded. Please confirm.', 'success')
+    showToast('Team details loaded. Please confirm.', 'success', 2000)
   } catch (err) {
     console.error(err)
-    showToast('Verification failed — ' + err.message, 'error')
+    showToast('Verification failed — ' + err.message, 'error', 2000)
   }
 }
 
@@ -190,11 +192,12 @@ function confirmFetchedTeam() {
       <p><b>Leader:</b> ${escapeHtml(verifiedTeam.directorName)}</p>
       ${verifiedTeam.directorRegistrationNumber ? `<p><b>Leader Registration No.:</b> ${escapeHtml(verifiedTeam.directorRegistrationNumber)}</p>` : ''}
       <p><b>Email:</b> ${escapeHtml(verifiedTeam.contactEmail)}</p>
+      ${verifiedTeam.whatsappNumber ? `<p><b>WhatsApp:</b> ${escapeHtml(verifiedTeam.whatsappNumber)}</p>` : ''}
       ${verifiedTeam.teamMembers ? `<p><b>Members:</b> ${escapeHtml(verifiedTeam.teamMembers)}</p>` : ''}
       <p style="margin-top:10px;color:var(--amber);font-weight:600;">Verified — you can submit now.</p>
     `
   }
-  showToast('Team verified. Submit your entry now.', 'success')
+  showToast('Team verified. Submit your entry now.', 'success', 2000)
 }
 
 function rejectFetchedTeam() {
@@ -206,13 +209,13 @@ function rejectFetchedTeam() {
     info.style.display = 'none'
     info.innerHTML = ''
   }
-  showToast('Please check Team Registration ID and try again.', 'error')
+  showToast('Please check Team Registration ID and try again.', 'error', 2000)
 }
 
 async function handleFinalSubmit(e) {
   e.preventDefault()
   if (!verifiedTeam) {
-    showToast('Please fetch Team ID and confirm it is your team first.', 'error')
+    showToast('Please fetch Team ID and confirm it is your team first.', 'error', 2000)
     return
   }
 
@@ -242,6 +245,7 @@ async function handleFinalSubmit(e) {
       directorName: verifiedTeam.directorName,
       directorRegistrationNumber: verifiedTeam.directorRegistrationNumber,
       contactEmail: verifiedTeam.contactEmail,
+      whatsappNumber: verifiedTeam.whatsappNumber || '',
       teamMembers: verifiedTeam.teamMembers,
       teamMemberDetails: verifiedTeam.teamMemberDetails,
       filmTitle,
@@ -300,10 +304,10 @@ async function handleFinalSubmit(e) {
     `
     document.getElementById('success-home').addEventListener('click', () => window.navigate('home'))
     document.getElementById('success-finalists').addEventListener('click', () => window.navigate('finalists'))
-    showToast('Verified film submitted successfully.', 'success')
+    showToast('Verified film submitted successfully.', 'success', 2000)
   } catch (err) {
     console.error(err)
-    showToast('Submission failed — ' + err.message, 'error')
+    showToast('Submission failed — ' + err.message, 'error', 2000)
     submitBtn.disabled = false
     submitLabel.textContent = 'Submit Verified Entry'
   }
