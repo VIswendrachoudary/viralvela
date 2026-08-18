@@ -1291,38 +1291,56 @@ img { display: block; max-width: 100%; }
 }
 
 /* Custom Animated Cursor Follower Ring & Dot */
-.custom-cursor-dot {
+.custom-cursor-dot,
+.custom-cursor-ring {
   position: fixed;
+  top: -1000px;
+  left: -1000px;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  display: none;
+}
+
+.custom-cursor-dot.visible {
+  display: block;
+  opacity: 1;
+  visibility: visible;
   top: 0;
   left: 0;
+}
+
+.custom-cursor-ring.visible {
+  display: flex;
+  opacity: 1;
+  visibility: visible;
+  top: 0;
+  left: 0;
+}
+
+.custom-cursor-dot {
   width: 8px;
   height: 8px;
   background: var(--amber);
   border-radius: 50%;
-  pointer-events: none;
   z-index: 99999;
   margin-top: -4px;
   margin-left: -4px;
   box-shadow: 0 0 10px var(--amber), 0 0 16px var(--amber-glow);
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
 }
 
 .custom-cursor-ring {
-  position: fixed;
-  top: 0;
-  left: 0;
   width: 32px;
   height: 32px;
   border: 1.5px dashed var(--amber);
   border-radius: 50%;
-  pointer-events: none;
   z-index: 99998;
   margin-top: -16px;
   margin-left: -16px;
-  display: flex;
   align-items: center;
   justify-content: center;
-  transition: border-color 0.2s ease, width 0.2s ease, height 0.2s ease, margin 0.2s ease;
+  transition: border-color 0.2s ease, width 0.2s ease, height 0.2s ease, margin 0.2s ease, opacity 0.2s ease, visibility 0.2s ease;
   animation: cursor-ring-rotate 12s linear infinite;
   box-shadow: 0 0 12px rgba(232, 163, 61, 0.25);
 }
