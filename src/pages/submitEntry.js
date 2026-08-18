@@ -34,7 +34,7 @@ export async function renderSubmitEntry() {
       ${isPastDeadline ? `
         <div style="padding:18px 20px;background:var(--red-dim);border-left:3px solid var(--red);">
           <p style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--paper);letter-spacing:.5px;">
-            ⛔ Submissions are now closed. The deadline has passed.
+            Submissions are now closed. The deadline has passed.
           </p>
         </div>
       ` : `
@@ -70,7 +70,7 @@ export async function renderSubmitEntry() {
             <div id="link-preview" style="display:none; margin-top:14px; padding:14px;background:var(--bg-alt); border:1px solid var(--line);align-items:center; gap:12px;">
               <div id="preview-thumb" style="width:80px;height:45px;background:var(--bg-deep);flex-shrink:0;overflow:hidden;">
                 <img id="preview-img" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;" />
-                <div id="preview-placeholder" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:18px;">🎬</div>
+                <div id="preview-placeholder" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--grey);">LINK</div>
               </div>
               <div>
                 <p style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--amber);letter-spacing:1px;margin-bottom:2px;">LINK DETECTED</p>
@@ -187,7 +187,7 @@ function confirmFetchedTeam() {
   const info = document.getElementById('team-verified-box')
   if (info) {
     info.innerHTML = `
-      <p><strong>Team Verified ✓</strong></p>
+      <p><strong>Team Verified</strong></p>
       <p><b>Team:</b> ${escapeHtml(verifiedTeam.teamName)}</p>
       <p><b>Leader:</b> ${escapeHtml(verifiedTeam.directorName)}</p>
       ${verifiedTeam.directorRegistrationNumber ? `<p><b>Leader Registration No.:</b> ${escapeHtml(verifiedTeam.directorRegistrationNumber)}</p>` : ''}
@@ -284,7 +284,7 @@ async function handleFinalSubmit(e) {
         <div class="form-card crt-success-card" style="text-align:center;padding:60px 40px;position:relative;z-index:2;">
           <div class="clapperboard-anim">
             <div class="clapper-top"></div>
-            <div class="clapper-bottom">🎬</div>
+            <div class="clapper-bottom"></div>
           </div>
           <div class="success-badge-glow">SUBMISSION CONFIRMED</div>
           <h1 class="section-title success-headline">You're In!</h1>
@@ -342,11 +342,11 @@ function updateLinkPreview(url) {
         previewImg.style.display = 'block'
         previewPlaceholder.style.display = 'none'
       }
-      previewType.textContent = 'YouTube video detected ✓'
+      previewType.textContent = 'YouTube video detected'
     } else {
       previewImg.style.display = 'none'
       previewPlaceholder.style.display = 'flex'
-      previewType.textContent = 'Google Drive link detected ✓'
+      previewType.textContent = 'Google Drive link detected'
     }
   } catch {
     preview.style.display = 'none'

@@ -31,7 +31,7 @@ export async function renderTeamRegistration() {
       ${isPastDeadline ? `
         <div style="padding:18px 20px;background:var(--red-dim);border-left:3px solid var(--red);">
           <p style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--paper);letter-spacing:.5px;">
-            ⛔ Submissions are now closed. The deadline has passed.
+            Submissions are now closed. The deadline has passed.
           </p>
         </div>
       ` : `
@@ -64,9 +64,9 @@ export async function renderTeamRegistration() {
           </div>
           <div class="form-group">
             <label class="form-label" for="team-members">Other Team Members & Registration Numbers</label>
-            <textarea class="form-textarea" id="team-members" name="teamMembers" maxlength="600" placeholder="One member per line&#10;NAME - REG NO"></textarea>
-            <p class="form-hint">Add each member’s name and registration number, separated by a dash.</p>
-            <p class="form-error" id="err-team-members">Use one member per line: Name — Registration Number.</p>
+            <textarea class="form-textarea" id="team-members" name="teamMembers" maxlength="600" placeholder="One member per line: NAME - REG NO&#10;If solo leave empty"></textarea>
+            <p class="form-hint">Add each member’s name and registration number, separated by a dash. If solo leave empty.</p>
+            <p class="form-error" id="err-team-members">Use one member per line: Name — Registration Number (or leave empty if solo).</p>
           </div>
           <div class="submit-row">
             <button type="submit" class="btn btn-submit" id="register-team-btn">
@@ -156,13 +156,13 @@ async function handleTeamRegistration(e) {
     const result = document.getElementById('registration-result')
     result.style.display = 'block'
     result.innerHTML = `
-      <p><strong>Team Registered ✓</strong></p>
+      <p><strong>Team Registered</strong></p>
       <p>ID: <span class="sub-id-box">${registrationId}</span></p>
       <p style="margin-top:8px;">${confirmationEmailSent
         ? `A confirmation email has been sent to ${contactEmail}.`
         : 'Your team is registered, but the confirmation email could not be sent. Please contact an organizer if needed.'}</p>
       <div style="margin-top:14px;">
-        <a class="btn" href="${WHATSAPP_GROUP_URL}" target="_blank" rel="noopener noreferrer" style="background:#25D366;color:#000000;">💬 Join WhatsApp Group →</a>
+        <a class="btn" href="${WHATSAPP_GROUP_URL}" target="_blank" rel="noopener noreferrer" style="background:#25D366;color:#000000;">Join WhatsApp Group →</a>
       </div>
     `
 
@@ -275,18 +275,23 @@ async function sendRegistrationConfirmationEmail({ teamName, directorName, direc
 
 function parseTeamMembers(value, registrationNumberPattern) {
   if (!value) return []
+  const cleanVal = value.trim().toLowerCase()
+  if (cleanVal === 'n/a' || cleanVal === 'na' || cleanVal === 'none' || cleanVal === 'nil') return []
 
   const members = value.split('\n').map(line => line.trim()).filter(Boolean)
-  const parsed = members.map(line => {
+  const parsed = []
+  for (const line of members) {
+    const lineLower = line.toLowerCase()
+    if (lineLower === 'n/a' || lineLower === 'na' || lineLower === 'none' || lineLower === 'nil') continue
     const match = line.match(/^(.+?)\s*[-–—]\s*([A-Za-z0-9]+)$/)
     if (!match) return null
     const name = match[1].trim()
     const registrationNumber = match[2].trim().toUpperCase()
     if (!name || !registrationNumberPattern.test(registrationNumber)) return null
-    return { name, registrationNumber }
-  })
+    parsed.push({ name, registrationNumber })
+  }
 
-  return parsed.some(member => member === null) ? null : parsed
+  return parsed
 }
 
 async function generateUniqueRegistrationId() {

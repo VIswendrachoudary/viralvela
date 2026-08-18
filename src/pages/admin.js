@@ -9,7 +9,9 @@ import { renderNav } from '../components/nav.js'
 const SESSION_KEY = '3mfc_admin_ok'
 let currentAdminTab = 'config'
 let unsubscribeSubmissions = null
-let unsubscribeRegistrations = null
+let unsubscribeTeams = null
+let unsubscribeBinSubs = null
+let unsubscribeBinTeams = null
 
 export function renderAdmin() {
   renderNav('admin')
@@ -106,13 +108,17 @@ function renderAdminDashboard(page) {
         <button class="admin-nav-item ${currentAdminTab==='config'?'active':''}" data-tab="config">
           <span class="nav-icon">⚙️</span> Contest Settings
         </button>
-        <button class="admin-nav-item ${currentAdminTab==='registrations'?'active':''}" data-tab="registrations">
+        <button class="admin-nav-item ${currentAdminTab==='team-registrations'?'active':''}" data-tab="team-registrations">
           <span class="nav-icon">📋</span> Team Registrations
-          <span id="reg-badge" style="margin-left:auto;font-size:10px;background:var(--amber-glow);color:var(--amber);padding:2px 7px;border-radius:20px;"></span>
+          <span id="teams-badge" style="margin-left:auto;font-size:10px;background:var(--amber-glow);color:var(--amber);padding:2px 7px;border-radius:20px;"></span>
         </button>
         <button class="admin-nav-item ${currentAdminTab==='submissions'?'active':''}" data-tab="submissions">
           <span class="nav-icon">📥</span> Submissions
           <span id="sub-badge" style="margin-left:auto;font-size:10px;background:var(--amber-glow);color:var(--amber);padding:2px 7px;border-radius:20px;"></span>
+        </button>
+        <button class="admin-nav-item ${currentAdminTab==='bin'?'active':''}" data-tab="bin">
+          <span class="nav-icon">🗑️</span> Recycle Bin
+          <span id="bin-badge" style="margin-left:auto;font-size:10px;background:rgba(194,59,34,0.25);color:var(--red);padding:2px 7px;border-radius:20px;"></span>
         </button>
         <button class="admin-nav-item ${currentAdminTab==='finalists'?'active':''}" data-tab="finalists">
           <span class="nav-icon">🏆</span> Finalists
@@ -139,13 +145,15 @@ function renderAdminDashboard(page) {
 
   document.getElementById('lock-btn').addEventListener('click', () => {
     if (unsubscribeSubmissions) { unsubscribeSubmissions(); unsubscribeSubmissions = null }
-    if (unsubscribeRegistrations) { unsubscribeRegistrations(); unsubscribeRegistrations = null }
+    if (unsubscribeTeams) { unsubscribeTeams(); unsubscribeTeams = null }
+    if (unsubscribeBinSubs) { unsubscribeBinSubs(); unsubscribeBinSubs = null }
+    if (unsubscribeBinTeams) { unsubscribeBinTeams(); unsubscribeBinTeams = null }
     sessionStorage.removeItem(SESSION_KEY)
     renderAdminLogin(document.getElementById('page'))
   })
 
   loadSubmissionCount()
-  loadRegistrationCount()
+  loadTeamCount()
   switchTab(currentAdminTab)
 }
 
@@ -156,11 +164,12 @@ function switchTab(tab) {
   })
   const main = document.getElementById('admin-main')
   if (!main) return
-  if (tab === 'config')           renderConfigTab(main)
-  else if (tab === 'registrations') renderRegistrationsTab(main)
-  else if (tab === 'submissions') renderSubmissionsTab(main)
-  else if (tab === 'finalists')   renderFinalistsTab(main)
-  else if (tab === 'votes')       renderVotesTab(main)
+  if (tab === 'config')                 renderConfigTab(main)
+  else if (tab === 'team-registrations') renderTeamRegistrationsTab(main)
+  else if (tab === 'submissions')        renderSubmissionsTab(main)
+  else if (tab === 'bin')                renderBinTab(main)
+  else if (tab === 'finalists')          renderFinalistsTab(main)
+  else if (tab === 'votes')              renderVotesTab(main)
 }
 
 async function loadSubmissionCount() {
@@ -171,10 +180,10 @@ async function loadSubmissionCount() {
   } catch (_) {}
 }
 
-async function loadRegistrationCount() {
+async function loadTeamCount() {
   try {
     const snap = await getCountFromServer(collection(db, 'teamRegistrations'))
-    const badge = document.getElementById('reg-badge')
+    const badge = document.getElementById('teams-badge')
     if (badge) badge.textContent = snap.data().count
   } catch (_) {}
 }
@@ -317,23 +326,23 @@ async function renderConfigTab(main) {
 }
 
 /* ================================================================
-   TEAM REGISTRATIONS TAB (NEW)
+   TEAM REGISTRATIONS TAB
 ================================================================ */
-function renderRegistrationsTab(main) {
-  if (unsubscribeRegistrations) { unsubscribeRegistrations(); unsubscribeRegistrations = null }
+function renderTeamRegistrationsTab(main) {
+  if (unsubscribeTeams) { unsubscribeTeams(); unsubscribeTeams = null }
 
   main.innerHTML = `
     <div class="admin-header">
       <h2>Team Registrations</h2>
-      <p>View registered teams, leaders, registration numbers, WhatsApp contact, and registration timestamps.</p>
+      <p>View registered teams, leaders, reg numbers, WhatsApp numbers, and submission timestamps.</p>
     </div>
     <div class="stats-bar">
-      <div class="stat-box"><div class="stat-label">Total Teams</div><div class="stat-value" id="st-reg-total">—</div></div>
+      <div class="stat-box"><div class="stat-label">Total Teams</div><div class="stat-value" id="st-team-total">—</div></div>
     </div>
     <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center;">
-      <input class="form-input" id="search-reg" placeholder="Search team, leader, reg no, phone..."
+      <input class="form-input" id="search-team" placeholder="Search team ID, name, leader, phone..."
         style="max-width:300px;padding:9px 14px;font-size:13px;" />
-      <button class="btn btn-outline btn-sm" id="download-registrations-csv" type="button">
+      <button class="btn btn-outline btn-sm" id="download-teams-csv" type="button">
         Download CSV
       </button>
     </div>
@@ -348,70 +357,71 @@ function renderRegistrationsTab(main) {
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody id="reg-tbody">${skeletonRows(6)}</tbody>
+        <tbody id="team-tbody">${skeletonRows(6)}</tbody>
       </table>
     </div>
   `
 
-  let allRegistrations = []
+  let allTeams = []
 
   const q = query(collection(db, 'teamRegistrations'), orderBy('createdAt', 'desc'))
-  unsubscribeRegistrations = onSnapshot(q, snapshot => {
-    allRegistrations = snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
-    setText('st-reg-total', allRegistrations.length)
-    const badge = document.getElementById('reg-badge')
-    if (badge) badge.textContent = allRegistrations.length
-    renderRegistrationRows(filterRegs(allRegistrations))
-  }, err => showToast('Could not load registrations: ' + err.message, 'error'))
+  unsubscribeTeams = onSnapshot(q, snapshot => {
+    const raw = snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
+    allTeams = raw.filter(t => t.status !== 'bin')
+    setText('st-team-total', allTeams.length)
+    const badge = document.getElementById('teams-badge')
+    if (badge) badge.textContent = allTeams.length
+    renderTeamRows(filterTeams(allTeams))
+  }, err => showToast('Could not load team registrations: ' + err.message, 'error'))
 
-  const doFilter = debounce(() => renderRegistrationRows(filterRegs(allRegistrations)), 300)
-  document.getElementById('search-reg')?.addEventListener('input', doFilter)
-  document.getElementById('download-registrations-csv')?.addEventListener('click', () => {
-    downloadRegistrationsCsv(filterRegs(allRegistrations))
+  const doFilter = debounce(() => renderTeamRows(filterTeams(allTeams)), 300)
+  document.getElementById('search-team')?.addEventListener('input', doFilter)
+  document.getElementById('download-teams-csv')?.addEventListener('click', () => {
+    downloadTeamsCsv(filterTeams(allTeams))
   })
 }
 
-function filterRegs(all) {
-  const search = document.getElementById('search-reg')?.value.toLowerCase() || ''
+function filterTeams(all) {
+  const search = document.getElementById('search-team')?.value.toLowerCase() || ''
   if (!search) return all
-  return all.filter(r =>
-    r.registrationId?.toLowerCase().includes(search) ||
-    r.teamName?.toLowerCase().includes(search) ||
-    r.directorName?.toLowerCase().includes(search) ||
-    r.directorRegistrationNumber?.toLowerCase().includes(search) ||
-    r.contactEmail?.toLowerCase().includes(search) ||
-    r.whatsappNumber?.toLowerCase().includes(search)
+  return all.filter(t =>
+    t.registrationId?.toLowerCase().includes(search) ||
+    t.teamName?.toLowerCase().includes(search) ||
+    t.directorName?.toLowerCase().includes(search) ||
+    t.directorRegistrationNumber?.toLowerCase().includes(search) ||
+    t.contactEmail?.toLowerCase().includes(search) ||
+    t.whatsappNumber?.toLowerCase().includes(search)
   )
 }
 
-function renderRegistrationRows(registrations) {
-  const tbody = document.getElementById('reg-tbody')
+function renderTeamRows(teams) {
+  const tbody = document.getElementById('team-tbody')
   if (!tbody) return
-  if (registrations.length === 0) {
+  if (teams.length === 0) {
     tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--grey);font-family:'IBM Plex Mono',monospace;font-size:12px;">No team registrations found.</td></tr>`
     return
   }
-  tbody.innerHTML = registrations.map(r => `
+  tbody.innerHTML = teams.map(t => `
     <tr>
       <td>
-        <span class="sub-id-box">${esc(r.registrationId || r.id)}</span><br/>
-        <strong>${esc(r.teamName)}</strong>
+        <span class="sub-id-box">${esc(t.registrationId || t.id)}</span><br/>
+        <strong>${esc(t.teamName)}</strong>
       </td>
       <td>
-        <strong>${esc(r.directorName)}</strong><br/>
-        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--amber);">${esc(r.directorRegistrationNumber || '—')}</span>
+        <strong>${esc(t.directorName)}</strong><br/>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--amber);">${esc(t.directorRegistrationNumber || '—')}</span>
       </td>
       <td>
-        <span style="font-size:12px;">✉️ ${esc(r.contactEmail)}</span><br/>
-        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--paper-dim);">💬 ${esc(r.whatsappNumber || '—')}</span>
+        <span style="font-size:12px;">✉️ ${esc(t.contactEmail)}</span><br/>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--paper-dim);">💬 ${esc(t.whatsappNumber || '—')}</span>
       </td>
       <td style="white-space:nowrap;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--paper-dim);">
-        📅 ${formatDateTime(r.createdAt)}
+        📅 ${formatDateTime(t.createdAt)}
       </td>
       <td>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button class="btn btn-sm" data-action="view-reg" data-id="${r.id}">👁️ View Details</button>
-          <button class="btn btn-sm btn-danger" data-action="delete-reg" data-id="${r.id}" data-title="${esc(r.teamName)}">🗑</button>
+          <button class="btn btn-sm" data-action="view-team" data-id="${t.id}">👁️ View Details</button>
+          <button class="btn btn-sm btn-danger" data-action="bin-team" data-id="${t.id}">🗑 Move to Bin</button>
         </div>
       </td>
     </tr>
@@ -421,24 +431,21 @@ function renderRegistrationRows(registrations) {
     btn.addEventListener('click', () => {
       const action = btn.dataset.action
       const id = btn.dataset.id
-      const reg = registrations.find(item => item.id === id)
-      if (action === 'view-reg' && reg) {
-        showDetailsModal('Team Registration Details', reg, 'registration')
-      } else if (action === 'delete-reg') {
-        handleDeleteRegistration(id, btn.dataset.title)
+      const team = teams.find(item => item.id === id)
+      if (action === 'view-team' && team) {
+        showDetailsModal('Team Registration Details', team, 'registration')
+      } else if (action === 'bin-team') {
+        handleBinTeam(id)
       }
     })
   })
 }
 
-async function handleDeleteRegistration(id, teamName) {
-  if (!confirm(`Permanently delete team registration for "${teamName}"?`)) return
+async function handleBinTeam(id) {
   try {
-    await deleteDoc(doc(db, 'teamRegistrations', id))
-    showToast('Team registration deleted.', 'success')
-  } catch (err) {
-    showToast('Delete failed: ' + err.message, 'error')
-  }
+    await updateDoc(doc(db, 'teamRegistrations', id), { status: 'bin' })
+    showToast('Moved team registration to Bin.', 'success')
+  } catch (err) { showToast('Error: ' + err.message, 'error') }
 }
 
 /* ================================================================
@@ -488,7 +495,8 @@ function renderSubmissionsTab(main) {
 
   const q = query(collection(db, 'submissions'), orderBy('createdAt', 'desc'))
   unsubscribeSubmissions = onSnapshot(q, snapshot => {
-    allSubmissions = snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
+    const raw = snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
+    allSubmissions = raw.filter(s => s.status !== 'bin')
     updateStats(allSubmissions)
     renderSubmissionRows(filterSubs(allSubmissions))
   }, err => showToast('Could not load submissions: ' + err.message, 'error'))
@@ -558,7 +566,7 @@ function renderSubmissionRows(submissions) {
           ${s.status !== 'finalist' ? `<button class="btn btn-sm" data-action="promote" data-id="${s.id}" data-title="${esc(s.filmTitle)}">★ Finalist</button>` : ''}
           ${s.status !== 'rejected' ? `<button class="btn btn-sm btn-danger" data-action="reject" data-id="${s.id}">✕ Reject</button>`
             : `<button class="btn btn-sm btn-outline" data-action="restore" data-id="${s.id}">↩ Restore</button>`}
-          <button class="btn btn-sm btn-danger" data-action="delete" data-id="${s.id}" data-title="${esc(s.filmTitle)}">🗑</button>
+          <button class="btn btn-sm btn-danger" data-action="bin" data-id="${s.id}">🗑 Move to Bin</button>
         </div>
       </td>
     </tr>
@@ -587,7 +595,6 @@ async function handleSubAction(action, id, filmTitle) {
       const snap = await getDoc(subRef)
       if (!snap.exists()) { showToast('Not found.', 'error'); return }
       const d = snap.data()
-      // Copy synopsis too
       await addDoc(collection(db, 'finalists'), {
         filmTitle: d.filmTitle, directorName: d.directorName,
         synopsis: d.synopsis || d.logline || '',
@@ -607,11 +614,177 @@ async function handleSubAction(action, id, filmTitle) {
     try { await updateDoc(subRef, { status: 'pending' }); showToast('Restored to pending.') }
     catch (err) { showToast('Error: ' + err.message, 'error') }
   }
-  else if (action === 'delete') {
-    if (!confirm(`Permanently delete "${filmTitle}"?`)) return
-    try { await deleteDoc(subRef); showToast('Deleted.') }
+  else if (action === 'bin') {
+    try { await updateDoc(subRef, { status: 'bin' }); showToast('Moved submission to Bin.') }
     catch (err) { showToast('Error: ' + err.message, 'error') }
   }
+}
+
+/* ================================================================
+   RECYCLE BIN TAB
+================================================================ */
+function renderBinTab(main) {
+  if (unsubscribeSubmissions) { unsubscribeSubmissions(); unsubscribeSubmissions = null }
+  if (unsubscribeTeams) { unsubscribeTeams(); unsubscribeTeams = null }
+  if (unsubscribeBinSubs) { unsubscribeBinSubs(); unsubscribeBinSubs = null }
+  if (unsubscribeBinTeams) { unsubscribeBinTeams(); unsubscribeBinTeams = null }
+
+  main.innerHTML = `
+    <div class="admin-header">
+      <h2>Recycle Bin</h2>
+      <p>Deleted submissions and team registrations. View details, restore, or permanently delete them.</p>
+    </div>
+
+    <div style="margin-bottom:28px;">
+      <div id="bin-subs-section" style="margin-bottom:32px;">
+        <h3 style="font-size:16px;margin-bottom:12px;color:var(--amber);">Deleted Submissions</h3>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr><th>Film Title</th><th>Director</th><th>Email</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="bin-subs-tbody">${skeletonRows(3)}</tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="bin-teams-section">
+        <h3 style="font-size:16px;margin-bottom:12px;color:var(--amber);">Deleted Team Registrations</h3>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr><th>Team ID</th><th>Team Name</th><th>Leader Name</th><th>Email</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="bin-teams-tbody">${skeletonRows(3)}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `
+
+  const qSubs = query(collection(db, 'submissions'), orderBy('createdAt', 'desc'))
+  unsubscribeBinSubs = onSnapshot(qSubs, snapshot => {
+    const deletedSubs = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).filter(s => s.status === 'bin')
+    renderBinSubRows(deletedSubs)
+    updateBinBadge()
+  }, err => showToast('Error loading bin submissions: ' + err.message, 'error'))
+
+  const qTeams = query(collection(db, 'teamRegistrations'), orderBy('createdAt', 'desc'))
+  unsubscribeBinTeams = onSnapshot(qTeams, snapshot => {
+    const deletedTeams = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).filter(t => t.status === 'bin')
+    renderBinTeamRows(deletedTeams)
+    updateBinBadge()
+  }, err => showToast('Error loading bin teams: ' + err.message, 'error'))
+}
+
+async function updateBinBadge() {
+  try {
+    const [subSnap, teamSnap] = await Promise.all([
+      getDocs(query(collection(db, 'submissions'))),
+      getDocs(query(collection(db, 'teamRegistrations')))
+    ])
+    const countSubBin = subSnap.docs.filter(d => d.data().status === 'bin').length
+    const countTeamBin = teamSnap.docs.filter(d => d.data().status === 'bin').length
+    const badge = document.getElementById('bin-badge')
+    if (badge) badge.textContent = countSubBin + countTeamBin
+  } catch (_) {}
+}
+
+function renderBinSubRows(items) {
+  const tbody = document.getElementById('bin-subs-tbody')
+  if (!tbody) return
+  if (items.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--grey);font-family:'IBM Plex Mono',monospace;font-size:12px;">No deleted submissions.</td></tr>`
+    return
+  }
+  tbody.innerHTML = items.map(s => `
+    <tr>
+      <td><strong>${esc(s.filmTitle)}</strong></td>
+      <td>${esc(s.directorName)}</td>
+      <td>${esc(s.contactEmail)}</td>
+      <td>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-sm" data-view-bin-sub="${s.id}">👁️ View Details</button>
+          <button class="btn btn-sm btn-outline" data-restore-sub="${s.id}">Restore</button>
+          <button class="btn btn-sm btn-danger" data-perm-del-sub="${s.id}" data-title="${esc(s.filmTitle)}">Delete Permanently</button>
+        </div>
+      </td>
+    </tr>
+  `).join('')
+
+  tbody.querySelectorAll('[data-view-bin-sub]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const sub = items.find(i => i.id === btn.dataset.viewBinSub)
+      if (sub) showDetailsModal('Bin Submission Details', sub, 'submission')
+    })
+  })
+
+  tbody.querySelectorAll('[data-restore-sub]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      try {
+        await updateDoc(doc(db, 'submissions', btn.dataset.restoreSub), { status: 'pending' })
+        showToast('Submission restored to Submissions.', 'success')
+      } catch (err) { showToast('Error: ' + err.message, 'error') }
+    })
+  })
+  tbody.querySelectorAll('[data-perm-del-sub]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm(`Permanently delete "${btn.dataset.title}"? This cannot be undone.`)) return
+      try {
+        await deleteDoc(doc(db, 'submissions', btn.dataset.permDelSub))
+        showToast('Submission permanently erased.', 'success')
+      } catch (err) { showToast('Error: ' + err.message, 'error') }
+    })
+  })
+}
+
+function renderBinTeamRows(items) {
+  const tbody = document.getElementById('bin-teams-tbody')
+  if (!tbody) return
+  if (items.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--grey);font-family:'IBM Plex Mono',monospace;font-size:12px;">No deleted teams.</td></tr>`
+    return
+  }
+  tbody.innerHTML = items.map(t => `
+    <tr>
+      <td><span class="sub-id-box" style="font-size:11px;">${esc(t.registrationId || t.id)}</span></td>
+      <td><strong>${esc(t.teamName)}</strong></td>
+      <td>${esc(t.directorName)}</td>
+      <td>${esc(t.contactEmail)}</td>
+      <td>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-sm" data-view-bin-team="${t.id}">👁️ View Details</button>
+          <button class="btn btn-sm btn-outline" data-restore-team="${t.id}">Restore</button>
+          <button class="btn btn-sm btn-danger" data-perm-del-team="${t.id}" data-name="${esc(t.teamName)}">Delete Permanently</button>
+        </div>
+      </td>
+    </tr>
+  `).join('')
+
+  tbody.querySelectorAll('[data-view-bin-team]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const team = items.find(i => i.id === btn.dataset.viewBinTeam)
+      if (team) showDetailsModal('Bin Team Registration Details', team, 'registration')
+    })
+  })
+
+  tbody.querySelectorAll('[data-restore-team]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      try {
+        await updateDoc(doc(db, 'teamRegistrations', btn.dataset.restoreTeam), { status: 'registered' })
+        showToast('Team registration restored.', 'success')
+      } catch (err) { showToast('Error: ' + err.message, 'error') }
+    })
+  })
+  tbody.querySelectorAll('[data-perm-del-team]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm(`Permanently delete team "${btn.dataset.name}"? This cannot be undone.`)) return
+      try {
+        await deleteDoc(doc(db, 'teamRegistrations', btn.dataset.permDelTeam))
+        showToast('Team permanently erased.', 'success')
+      } catch (err) { showToast('Error: ' + err.message, 'error') }
+    })
+  })
 }
 
 /* ================================================================
@@ -886,7 +1059,7 @@ function downloadSubmissionsCsv(submissions) {
   showToast(`Downloaded ${submissions.length} submissions as CSV.`, 'success')
 }
 
-function downloadRegistrationsCsv(registrations) {
+function downloadTeamsCsv(registrations) {
   const headers = [
     'registrationId',
     'teamName',

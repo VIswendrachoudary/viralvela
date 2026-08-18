@@ -14,12 +14,12 @@ document.getElementById('app').innerHTML = `
   <div id="top-marquee-bar" class="crt-marquee-bar" role="region" aria-label="Ticker Announcements">
     <div class="marquee-track">
       <div class="marquee-group">
-        <span>🚨 SCROLL DOWN FOR SUBMISSION LINK &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; 🗓️ FINAL DATE: 26-AUG &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; 🎬 3-MINUTE FILM CHALLENGE OPEN CALL &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;</span>
-        <span>🚨 SCROLL DOWN FOR SUBMISSION LINK &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; 🗓️ FINAL DATE: 26-AUG &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; 🎬 3-MINUTE FILM CHALLENGE OPEN CALL &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;</span>
+        <span>SCROLL DOWN FOR SUBMISSION LINK &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; FINAL DATE: 26-AUG &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; 3-MINUTE FILM CHALLENGE OPEN CALL &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;</span>
+        <span>SCROLL DOWN FOR SUBMISSION LINK &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; FINAL DATE: 26-AUG &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; 3-MINUTE FILM CHALLENGE OPEN CALL &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;</span>
       </div>
       <div class="marquee-group" aria-hidden="true">
-        <span>🚨 SCROLL DOWN FOR SUBMISSION LINK &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; 🗓️ FINAL DATE: 26-AUG &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; 🎬 3-MINUTE FILM CHALLENGE OPEN CALL &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;</span>
-        <span>🚨 SCROLL DOWN FOR SUBMISSION LINK &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; 🗓️ FINAL DATE: 26-AUG &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; 🎬 3-MINUTE FILM CHALLENGE OPEN CALL &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;</span>
+        <span>SCROLL DOWN FOR SUBMISSION LINK &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; FINAL DATE: 26-AUG &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; 3-MINUTE FILM CHALLENGE OPEN CALL &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;</span>
+        <span>SCROLL DOWN FOR SUBMISSION LINK &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; FINAL DATE: 26-AUG &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; 3-MINUTE FILM CHALLENGE OPEN CALL &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;</span>
       </div>
     </div>
   </div>

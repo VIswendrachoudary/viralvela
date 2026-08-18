@@ -39,9 +39,12 @@ export async function renderHome() {
           Short Video Competition for Creators & Filmmakers
         </p>
 
-        <div class="hero-register-wrap" data-reveal="scale" data-delay="2.5" style="margin:24px 0 20px;">
+        <div class="hero-register-wrap" data-reveal="scale" data-delay="2.5" style="margin:24px 0 20px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
           <button class="btn btn-hero-register" id="hero-register-btn">
-            ⚡ REGISTER NOW →
+            REGISTER NOW →
+          </button>
+          <button class="btn btn-outline" id="hero-submit-film-btn" style="padding:14px 28px; font-weight:700;">
+            SUBMIT YOUR FILM →
           </button>
         </div>
 
@@ -122,7 +125,7 @@ export async function renderHome() {
           </div>
           <div class="fp-tl-item" data-reveal="left" data-delay="3">
             <div class="fp-tl-dot fp-tl-dot-amber"></div>
-            <div class="fp-tl-label">Finalist Submission Screening 🎬</div>
+            <div class="fp-tl-label">Finalist Submission Screening</div>
             <div class="fp-tl-date" id="date-screening">29th Aug 2026</div>
           </div>
         </div>
@@ -139,25 +142,22 @@ export async function renderHome() {
         <div class="fp-prize-grid" style="margin-bottom:28px;">
           <div class="fp-prize-card" data-reveal="up" data-delay="1">
             <div class="fp-prize-rank">01</div>
-            <div class="fp-prize-icon">🥇</div>
             <div class="fp-prize-name">1st Place</div>
             <div class="fp-prize-value">Winner Award + Certificate</div>
           </div>
           <div class="fp-prize-card fp-prize-center" data-reveal="up" data-delay="2">
             <div class="fp-prize-rank">02</div>
-            <div class="fp-prize-icon">🥈</div>
             <div class="fp-prize-name">2nd Place</div>
             <div class="fp-prize-value">Runner Up + Certificate</div>
           </div>
           <div class="fp-prize-card" data-reveal="up" data-delay="3">
             <div class="fp-prize-rank">03</div>
-            <div class="fp-prize-icon">🥉</div>
             <div class="fp-prize-name">3rd Place</div>
             <div class="fp-prize-value">3rd Award + Certificate</div>
           </div>
         </div>
         <p style="text-align:center; font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--paper-dim); letter-spacing:1px;" data-reveal="up" data-delay="4">
-          📜 <strong>All Remaining Participants:</strong> Official participation certificates will be awarded to everyone with a valid video submission.
+          <strong>All Remaining Participants:</strong> Official participation certificates will be awarded to everyone with a valid video submission.
         </p>
       </div>
     </section>
@@ -213,10 +213,13 @@ export async function renderHome() {
         </p>
         <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap; margin-bottom:24px;">
           <button class="btn fp-cta-btn" id="main-cta" data-reveal="scale" data-delay="2" style="margin-bottom:0;">
-            ⚡ REGISTER NOW →
+            REGISTER NOW →
+          </button>
+          <button class="btn btn-outline" id="main-submit-film-btn" data-reveal="scale" data-delay="2.5" style="margin-bottom:0;">
+            SUBMIT YOUR FILM →
           </button>
           <a href="https://chat.whatsapp.com/KTwgEUumT3T4AlmxeLjQ9I?s=sh&p=a&ilr=0" target="_blank" rel="noopener noreferrer" class="btn" data-reveal="scale" data-delay="3" style="background:#25D366; color:#000000; font-weight:700; display:inline-flex; align-items:center; gap:8px;">
-            <span>💬</span> Join WhatsApp Group
+            Join WhatsApp Group
           </a>
         </div>
     <!-- ══ CONTACT DETAILS SECTION ═══════════════════════════════ -->
@@ -264,7 +267,7 @@ export async function renderHome() {
     <!-- ══ MOBILE STICKY CTA ════════════════════════════════════════ -->
     <div class="mobile-sticky-cta" id="mobile-sticky-cta">
       <button class="btn-mobile-register" id="mobile-register-btn">
-        ⚡ REGISTER NOW →
+        REGISTER NOW →
       </button>
     </div>
 
@@ -282,9 +285,11 @@ export async function renderHome() {
 
   // Wire up CTAs
   document.getElementById('hero-register-btn')?.addEventListener('click', () => window.navigate('team-registration'))
+  document.getElementById('hero-submit-film-btn')?.addEventListener('click', () => window.navigate('submit-entry'))
   document.getElementById('mobile-register-btn')?.addEventListener('click', () => window.navigate('team-registration'))
   document.getElementById('pitch-cta')?.addEventListener('click', () => window.navigate('team-registration'))
   document.getElementById('main-cta')?.addEventListener('click', () => window.navigate('team-registration'))
+  document.getElementById('main-submit-film-btn')?.addEventListener('click', () => window.navigate('submit-entry'))
 
   // Hidden admin easter egg — 5 clicks on ◉
   let eggClicks = 0, eggTimer
@@ -398,7 +403,6 @@ function showAdminPinModal() {
   overlay.innerHTML = `
     <div class="admin-pin-modal" id="admin-pin-box">
       <div style="text-align:center;margin-bottom:24px;">
-        <div style="font-size:38px;margin-bottom:14px;">🎬</div>
         <p style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:3px;
            color:var(--red);text-transform:uppercase;margin-bottom:8px;">Admin Portal</p>
         <h2 style="font-family:'Anton',sans-serif;font-size:24px;text-transform:uppercase;

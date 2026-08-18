@@ -145,7 +145,6 @@ export async function renderFinalists() {
     if (gridEl) {
       gridEl.innerHTML = `
         <div class="empty-state" style="grid-column:1/-1;">
-          <div class="empty-icon">🎞️</div>
           <p class="empty-title">No Finalists Yet</p>
           <p class="empty-sub">Finalists will be listed here once selected by the judges after 26 August 2026.</p>
         </div>
@@ -187,7 +186,6 @@ function renderFilmsGrid(films) {
   if (films.length === 0) {
     grid.innerHTML = `
       <div class="empty-state" style="grid-column:1/-1;">
-        <div class="empty-icon">🎞️</div>
         <p class="empty-title">No Finalists Yet</p>
         <p class="empty-sub">Check back after the deadline — finalists will be announced here.</p>
         <div style="margin-top:28px;">
@@ -212,7 +210,7 @@ function renderFilmsGrid(films) {
           onkeydown="if(event.key==='Enter') this.click()">
           ${thumb
             ? `<img src="${thumb}" alt="Thumbnail for ${film.filmTitle}" loading="lazy" />`
-            : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--grey);font-size:40px;">🎬</div>`
+            : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--grey);font-size:12px;">NO THUMBNAIL</div>`
           }
           <div class="film-card-play">
             <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
@@ -238,7 +236,7 @@ function renderFilmsGrid(films) {
               data-film-id="${film.id}"
               aria-label="Vote for ${film.filmTitle}"
               ${votedFilmId ? 'disabled' : ''}>
-              ${isVoted ? '✓ Voted' : (votedFilmId ? 'Already Voted' : 'Vote')}
+              ${isVoted ? 'Voted' : (votedFilmId ? 'Already Voted' : 'Vote')}
             </button>
           </div>
         </div>
@@ -289,13 +287,13 @@ function renderFilmsGrid(films) {
         }
 
         recordDeviceVote(filmId)
-        showToast('Vote cast! Thanks for voting. 🎬', 'success')
+        showToast('Vote cast! Thanks for voting.', 'success')
         
         // Disable all vote buttons on page
         grid.querySelectorAll('.btn-vote').forEach(b => {
           b.disabled = true
           if (b.dataset.filmId === filmId) {
-            b.textContent = '✓ Voted'
+            b.textContent = 'Voted'
             b.classList.add('voted')
           } else {
             b.textContent = 'Already Voted'

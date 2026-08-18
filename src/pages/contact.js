@@ -6,7 +6,6 @@ export function renderContact() {
 
   page.innerHTML = `
     <div class="form-card fade-up" style="max-width:680px; margin:40px auto; padding:48px 44px; text-align:center;">
-      <div style="font-size:48px; margin-bottom:16px;">📞</div>
       <p class="eyebrow">Get In Touch</p>
       <h1 class="section-title" style="font-size:36px; margin-bottom:12px;">Contact Us</h1>
       <p style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--paper-dim); line-height:1.7; margin-bottom:36px;">
@@ -24,7 +23,7 @@ export function renderContact() {
 
         <div style="background:var(--bg-alt); border:1px solid var(--line); padding:24px 20px;">
           <p style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--red); text-transform:uppercase; margin-bottom:8px;">Submission Queries</p>
-          <h3 style="font-family:'IBM Plex Sans',sans-serif; font-size:18px; color:var(--paper); margin-bottom:8px;">Charandeep</h3>
+          <h3 style="font-family:'IBM Plex Sans',sans-serif; font-size:18px; color:var(--paper); margin-bottom:8px;">Charan Garikapati</h3>
           <a href="mailto:charandeepgarikapati@gmail.com" style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--amber); word-break:break-all;">
             charandeepgarikapati@gmail.com
           </a>
@@ -38,7 +37,7 @@ export function renderContact() {
         <p style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:1px; color:#25D366; text-transform:uppercase; margin-bottom:8px;">Official Participant Community</p>
         <h3 style="font-family:'IBM Plex Sans',sans-serif; font-size:20px; color:var(--paper); margin-bottom:16px;">Join VIRAL VELA WhatsApp Group</h3>
         <a href="https://chat.whatsapp.com/KTwgEUumT3T4AlmxeLjQ9I?s=sh&p=a&ilr=0" target="_blank" rel="noopener noreferrer" class="btn" style="background:#25D366; color:#000000; font-weight:700; display:inline-flex; align-items:center; gap:8px;">
-          <span>💬</span> Join WhatsApp Group →
+          Join WhatsApp Group →
         </a>
       </div>
 

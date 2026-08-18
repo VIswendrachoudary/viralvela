@@ -33,7 +33,7 @@ export async function renderSubmit() {
       ${isPastDeadline ? `
         <div style="margin-top:20px;padding:18px 20px;background:var(--red-dim);border-left:3px solid var(--red);">
           <p style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--paper);letter-spacing:.5px;">
-            ⛔ Submissions are now closed. The deadline has passed.
+            Submissions are now closed. The deadline has passed.
           </p>
         </div>
       ` : `
@@ -48,11 +48,11 @@ export async function renderSubmit() {
           </div>
           <div class="submit-route-card">
             <div class="form-section-label">Step 2</div>
-            <h3 class="section-title" style="font-size:22px;margin-bottom:14px;">Verify & Submit Video</h3>
+            <h3 class="section-title" style="font-size:22px;margin-bottom:14px;">Submit Film</h3>
             <p class="form-hint" style="margin:0 0 22px;">
-              Enter Team ID, view your registered names from Firebase, confirm it's your team, then submit your video.
+              Enter Team ID, confirm your registered team details, then submit your video.
             </p>
-            <button class="btn btn-outline" id="go-submit-entry">Go to Verify & Submit →</button>
+            <button class="btn btn-outline" id="go-submit-entry">Go to Submit Film →</button>
           </div>
         </div>
       `}
