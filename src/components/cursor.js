@@ -7,33 +7,62 @@ export function initCustomCursor() {
   const cursorDot = document.createElement('div')
   cursorDot.className = 'custom-cursor-dot'
   cursorDot.id = 'custom-cursor-dot'
+  cursorDot.style.opacity = '0'
+  cursorDot.style.visibility = 'hidden'
 
   const cursorRing = document.createElement('div')
   cursorRing.className = 'custom-cursor-ring'
   cursorRing.id = 'custom-cursor-ring'
+  cursorRing.style.opacity = '0'
+  cursorRing.style.visibility = 'hidden'
   cursorRing.innerHTML = `<span class="cursor-ring-sparkle">🎬</span>`
 
   document.body.appendChild(cursorDot)
   document.body.appendChild(cursorRing)
 
-  let mouseX = -100
-  let mouseY = -100
-  let ringX = -100
-  let ringY = -100
+  let mouseX = -500
+  let mouseY = -500
+  let ringX = -500
+  let ringY = -500
   let isHovered = false
+  let initialized = false
 
   window.addEventListener('mousemove', (e) => {
     mouseX = e.clientX
     mouseY = e.clientY
+    
+    if (!initialized) {
+      initialized = true
+      ringX = mouseX
+      ringY = mouseY
+      cursorDot.style.opacity = '1'
+      cursorDot.style.visibility = 'visible'
+      cursorRing.style.opacity = '1'
+      cursorRing.style.visibility = 'visible'
+    }
+
     cursorDot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`
   }, { passive: true })
 
+  document.addEventListener('mouseleave', () => {
+    cursorDot.style.opacity = '0'
+    cursorRing.style.opacity = '0'
+  })
+
+  document.addEventListener('mouseenter', () => {
+    if (initialized) {
+      cursorDot.style.opacity = '1'
+      cursorRing.style.opacity = '1'
+    }
+  })
+
   // Smooth lerp loop for outer ring
   function render() {
-    ringX += (mouseX - ringX) * 0.18
-    ringY += (mouseY - ringY) * 0.18
-
-    cursorRing.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) scale(${isHovered ? 1.5 : 1})`
+    if (initialized) {
+      ringX += (mouseX - ringX) * 0.18
+      ringY += (mouseY - ringY) * 0.18
+      cursorRing.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) scale(${isHovered ? 1.5 : 1})`
+    }
     requestAnimationFrame(render)
   }
   requestAnimationFrame(render)
