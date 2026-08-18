@@ -1,4 +1,5 @@
 import './style.css'
+import { initCustomCursor } from './components/cursor.js'
 import { renderNav } from './components/nav.js'
 import { renderHome } from './pages/home.js'
 import { renderSubmit } from './pages/submit.js'
@@ -7,6 +8,9 @@ import { renderSubmitEntry } from './pages/submitEntry.js'
 import { renderFinalists } from './pages/finalists.js'
 import { renderAdmin } from './pages/admin.js'
 import { renderContact } from './pages/contact.js'
+
+// Initialize cute film-themed custom cursor
+initCustomCursor()
 
 // ── App shell with glowing dynamic side film strips & ticker marquee ────
 document.getElementById('app').innerHTML = `
